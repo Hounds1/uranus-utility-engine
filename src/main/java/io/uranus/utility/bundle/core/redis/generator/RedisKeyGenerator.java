@@ -1,4 +1,4 @@
-package io.uranus.utility.bundle.core.redis.builder;
+package io.uranus.utility.bundle.core.redis.generator;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
