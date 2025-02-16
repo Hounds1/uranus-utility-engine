@@ -209,4 +209,28 @@ public enum Region {
         this.utcOffsetMinutes = utcOffsetMinutes;
         this.timeZone = timeZone;
     }
+
+    public String zoneOffset() {
+        String offset = "";
+
+        if (this.utcOffsetHours > 0) {
+            offset += this.utcOffsetHours + ":";
+        } else {
+            offset += "-" + this.utcOffsetHours + ":";
+        }
+
+        offset += this.utcOffsetMinutes;
+
+        return offset;
+    }
+
+    public Region selectRegion(String timeZone) {
+        for (Region val : values()) {
+            if (val.getTimeZone().equals(timeZone)) {
+                return val;
+            }
+        }
+
+        return Region.REPUBLIC_OF_KOREA;
+    }
 }

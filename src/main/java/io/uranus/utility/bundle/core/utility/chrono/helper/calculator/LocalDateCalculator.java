@@ -65,4 +65,8 @@ public class LocalDateCalculator {
     public LocalDate compute() {
         return this.zonedDateTime.toLocalDate();
     }
+
+    public Long computeToEpoch() {
+        return this.zonedDateTime.toEpochSecond();
+    }
 }

@@ -1,19 +1,23 @@
 package io.uranus.utility.bundle.core.utility.chrono.helper.calculator;
 
+import io.uranus.utility.bundle.core.utility.chrono.helper.element.Region;
+
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 public class LocalDateTimeCalculator {
 
     private LocalDateTime localDateTime;
+    private Region region;
 
     private LocalDateTimeCalculator() {}
 
-    private LocalDateTimeCalculator(LocalDateTime localDateTime) {
+    private LocalDateTimeCalculator(LocalDateTime localDateTime, Region region) {
         this.localDateTime = localDateTime;
     }
 
-    public static LocalDateTimeCalculator createInstance(LocalDateTime initialized) {
-        return new LocalDateTimeCalculator(initialized);
+    public static LocalDateTimeCalculator createInstance(LocalDateTime initialized, Region region) {
+        return new LocalDateTimeCalculator(initialized, region);
     }
 
     public LocalDateTimeCalculator fixYears(int year) {
@@ -108,5 +112,9 @@ public class LocalDateTimeCalculator {
 
     public LocalDateTime compute() {
         return this.localDateTime;
+    }
+
+    public Long computeToEpoch() {
+        return this.localDateTime.toEpochSecond(ZoneOffset.of(region.zoneOffset()));
     }
 }

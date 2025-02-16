@@ -51,7 +51,7 @@ public class ChronoHelper {
      * @return ChronoCalculator
      */
     public static LocalDateTimeCalculator dateTimeComputeChain() {
-        return dateTimeComputeChain(now(DEFAULT_REGION));
+        return dateTimeComputeChain(now(DEFAULT_REGION), DEFAULT_REGION);
     }
 
     /**
@@ -61,7 +61,7 @@ public class ChronoHelper {
      * @return LocalDateTimeCalculator
      */
     public static LocalDateTimeCalculator dateTimeComputeChain(@Nullable Region region) {
-        return dateTimeComputeChain(now(withDefaultIfNecessary(region)));
+        return dateTimeComputeChain(now(withDefaultIfNecessary(region)), region);
     }
 
     /**
@@ -70,8 +70,8 @@ public class ChronoHelper {
      * @param localDateTime
      * @return LocalDateTimeCalculator
      */
-    public static LocalDateTimeCalculator dateTimeComputeChain(@Nonnull LocalDateTime localDateTime) {
-        return LocalDateTimeCalculator.createInstance(localDateTime);
+    public static LocalDateTimeCalculator dateTimeComputeChain(@Nonnull LocalDateTime localDateTime, Region region) {
+        return LocalDateTimeCalculator.createInstance(localDateTime, region);
     }
 
     /**
