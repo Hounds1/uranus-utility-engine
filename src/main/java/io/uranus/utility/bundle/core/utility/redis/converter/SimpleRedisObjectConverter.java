@@ -1,4 +1,4 @@
-package io.uranus.utility.bundle.core.redis.converter;
+package io.uranus.utility.bundle.core.utility.redis.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
