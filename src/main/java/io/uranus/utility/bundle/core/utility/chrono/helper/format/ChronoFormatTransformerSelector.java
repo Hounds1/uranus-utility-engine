@@ -6,21 +6,39 @@ import io.uranus.utility.bundle.core.utility.chrono.helper.format.transformer.St
 
 public class ChronoFormatTransformerSelector {
 
-    private ChronoFormatTransformerSelector() {}
+    protected ChronoFormatTransformerSelector() {}
 
-    public static ChronoFormatTransformerSelector createInstance() {
+    protected static ChronoFormatTransformerSelector createInstance() {
         return new ChronoFormatTransformerSelector();
     }
 
     public EpochToStringTransformer epochToString() {
-        return EpochToStringTransformer.createInstance();
+        return EpochToStringTransformerDelegate.getInstance();
     }
 
     public StringToEpochTransformer stringToEpoch() {
-        return StringToEpochTransformer.createInstance();
+        return StringToEpochTransformerDelegate.getInstance();
     }
 
     public StringToStringTransformer stringToString() {
-        return StringToStringTransformer.createInstance();
+        return StringToStringTransformerDelegate.getInstance();
+    }
+
+    static class EpochToStringTransformerDelegate extends EpochToStringTransformer {
+        protected static EpochToStringTransformer getInstance() {
+            return EpochToStringTransformer.createInstance();
+        }
+    }
+
+    static class StringToEpochTransformerDelegate extends StringToEpochTransformer {
+        protected static StringToEpochTransformer getInstance() {
+            return StringToEpochTransformer.createInstance();
+        }
+    }
+
+    static class StringToStringTransformerDelegate extends StringToStringTransformer {
+        protected static StringToStringTransformer getInstance() {
+            return StringToStringTransformer.createInstance();
+        }
     }
 }

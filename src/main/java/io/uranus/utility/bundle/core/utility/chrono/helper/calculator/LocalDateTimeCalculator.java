@@ -10,13 +10,13 @@ public class LocalDateTimeCalculator {
     private LocalDateTime localDateTime;
     private Region region;
 
-    private LocalDateTimeCalculator() {}
+    protected LocalDateTimeCalculator() {}
 
     private LocalDateTimeCalculator(LocalDateTime localDateTime, Region region) {
         this.localDateTime = localDateTime;
     }
 
-    public static LocalDateTimeCalculator createInstance(LocalDateTime initialized, Region region) {
+    protected static LocalDateTimeCalculator createInstance(LocalDateTime initialized, Region region) {
         return new LocalDateTimeCalculator(initialized, region);
     }
 

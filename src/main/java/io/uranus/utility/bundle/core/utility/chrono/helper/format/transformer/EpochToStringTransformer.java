@@ -14,9 +14,9 @@ public class EpochToStringTransformer extends ChronoTransformer<String> {
     private Long target;
     private ChronoFormat format;
 
-    private EpochToStringTransformer() {}
+    protected EpochToStringTransformer() {}
 
-    public static EpochToStringTransformer createInstance() {
+    protected static EpochToStringTransformer createInstance() {
         return new EpochToStringTransformer();
     }
 

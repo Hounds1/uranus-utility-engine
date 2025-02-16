@@ -13,9 +13,9 @@ public class StringToEpochTransformer extends ChronoTransformer<Long> {
 
     private String target;
 
-    private StringToEpochTransformer() {}
+    protected StringToEpochTransformer() {}
 
-    public static StringToEpochTransformer createInstance() {
+    protected static StringToEpochTransformer createInstance() {
         return new StringToEpochTransformer();
     }
 

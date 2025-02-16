@@ -1,6 +1,7 @@
 package io.uranus.utility.bundle.core.utility.redis.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.uranus.utility.bundle.core.utility.redis.generator.RedisKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,11 +13,19 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class SimpleRedisObjectConverter {
+public class RedisHelper {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
+    protected RedisHelper() {
+        this.redisTemplate = new RedisTemplate<>();
+        this.objectMapper = new ObjectMapper();
+    }
+
+    protected static RedisHelper createInstance() {
+        return new RedisHelper();
+    }
 
     public <T> T castAndGetFromValue(String key, Class<T> castType) {
         rejectIfInvalid(key, castType);
@@ -148,5 +157,21 @@ public class SimpleRedisObjectConverter {
 
     private void printWarningWhilePuttingHash(Exception e) {
         log.warn("Error putting hash into Redis. If needs more details then trace this [{}]", e.getMessage());
+    }
+
+    /**
+     * Instance Delegation
+     */
+    public RedisKeyGenerator keygen() {
+        return RedisKeyGeneratorDelegate.getInstance();
+    }
+
+    /**
+     * Delegators
+     */
+    static class RedisKeyGeneratorDelegate extends RedisKeyGenerator {
+        protected static RedisKeyGenerator getInstance() {
+            return RedisKeyGenerator.createInstance();
+        }
     }
 }
