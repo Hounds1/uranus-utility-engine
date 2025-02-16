@@ -26,11 +26,23 @@ public class ChronoHelper {
      * @return LocalDateTime of now with region
      */
     public static LocalDateTime now(@Nullable Region region) {
-        if (region == null) {
-            region = DEFAULT_REGION;
-        }
+        return LocalDateTime.now().atZone(ZoneId.of(withDefaultIfNecessary(region).getTimeZone())).toLocalDateTime();
+    }
 
-        return LocalDateTime.now().atZone(ZoneId.of(region.getTimeZone())).toLocalDateTime();
+    /**
+     * @return Epoch with default region
+     */
+    public static Long epoch() {
+        return epoch(DEFAULT_REGION);
+    }
+
+
+    /**
+     * @param region
+     * @return Epoch with region
+     */
+    public static Long epoch(@Nullable Region region) {
+        return ZonedDateTime.now(ZoneId.of(withDefaultIfNecessary(region).getTimeZone())).toEpochSecond();
     }
 
     /**
@@ -49,11 +61,7 @@ public class ChronoHelper {
      * @return LocalDateTimeCalculator
      */
     public static LocalDateTimeCalculator dateTimeComputeChain(@Nullable Region region) {
-        if (region == null) {
-            region = DEFAULT_REGION;
-        }
-
-        return dateTimeComputeChain(now(region));
+        return dateTimeComputeChain(now(withDefaultIfNecessary(region)));
     }
 
     /**
@@ -81,11 +89,7 @@ public class ChronoHelper {
      * @return LocalDateCalculator
      */
     public static LocalDateCalculator dateComputeChain(@Nullable Region region) {
-        if (region == null) {
-            region = DEFAULT_REGION;
-        }
-
-        return dateComputeChain(ZonedDateTime.now(ZoneId.of(region.getTimeZone())));
+        return dateComputeChain(ZonedDateTime.now(ZoneId.of(withDefaultIfNecessary(region).getTimeZone())));
     }
 
     /**
@@ -96,5 +100,17 @@ public class ChronoHelper {
      */
     public static LocalDateCalculator dateComputeChain(@Nonnull ZonedDateTime zonedDateTime) {
         return LocalDateCalculator.createInstance(zonedDateTime);
+    }
+
+    /**
+     * return default region if parameter is null
+     * @return default region
+     */
+    private static Region withDefaultIfNecessary(@Nullable Region region) {
+        if (region != null) {
+            return region;
+        }
+
+        return DEFAULT_REGION;
     }
 }
