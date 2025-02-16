@@ -1,14 +1,13 @@
 package io.uranus.utility.bundle.core.utility.note;
 
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
+import io.uranus.utility.bundle.core.utility.chrono.helper.element.ChronoFormat;
 import io.uranus.utility.bundle.core.utility.chrono.helper.element.Region;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ExamNoteTest {
@@ -134,4 +133,56 @@ class ExamNoteTest {
         System.out.println("createEpochWithDefaultRegion " + epochWithRegion);
     }
 
+    /**
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.format.ChronoFormatTransformerSelector
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.format.transformer.EpochToStringTransformer
+     *
+     * @implNote Transform epoch to String datetime format
+     */
+    @Test
+    void transformEpochToString() {
+        String transform = ChronoHelper.formatTransform().epochToString()
+                .epoch(1739696342L)
+                .format(ChronoFormat.DEFAULT_FORMAT)
+                .region(Region.REPUBLIC_OF_KOREA)
+                .transform();
+
+        System.out.println("transformEpochToString " + transform);
+    }
+
+    /**
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.format.ChronoFormatTransformerSelector
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.format.transformer.StringToEpochTransformer
+     *
+     * @implNote Transform validated String to epoch datetime format
+     */
+    @Test
+    void transformStringToEpoch() {
+        Long transform = ChronoHelper.formatTransform().stringToEpoch()
+                .target("2025-02-16 18:08:01")
+                .region(Region.REPUBLIC_OF_KOREA)
+                .transform();
+
+        System.out.println("transformStringToEpoch " + transform);
+    }
+
+    /**
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.format.ChronoFormatTransformerSelector
+     * @see io.uranus.utility.bundle.core.utility.chrono.helper.format.transformer.StringToStringTransformer
+     *
+     * @implNote Transform validated String format to String datetime format
+     */
+    @Test
+    void transformStringToString() {
+        String transform = ChronoHelper.formatTransform().stringToString()
+                .target("2025-02-16 18:08:01")
+                .format(ChronoFormat.SIMPLIFY_FORMAT)
+                .region(Region.REPUBLIC_OF_KOREA)
+                .transform();
+
+        System.out.println("transformStringToEpoch " + transform);
+    }
 }
