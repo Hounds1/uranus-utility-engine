@@ -1,5 +1,6 @@
 package io.uranus.utility.bundle.core.utility.note;
 
+import io.uranus.utility.bundle.core.utility.UranusUtilityEngine;
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
 import io.uranus.utility.bundle.core.utility.chrono.helper.element.ChronoFormat;
 import io.uranus.utility.bundle.core.utility.chrono.helper.element.Region;
@@ -12,9 +13,16 @@ import java.time.LocalDateTime;
 @SpringBootTest
 class ExamNoteTest {
 
+    /**
+     * @see io.uranus.utility.bundle.core.utility.UranusUtilityEngine
+     *
+     * All units cannot be instantiated without the UranusUtilityEngine.
+     */
+
+
     @Test
     void invokeDateTimeComputeChain() {
-        LocalDateTime localDateTime = ChronoHelper.dateTimeComputeChain()
+        LocalDateTime localDateTime = UranusUtilityEngine.chrono().dateTimeComputeChain()
                 .fixYears(-1)
                 .fixMonths(2)
                 .fixDays(10)
@@ -34,7 +42,7 @@ class ExamNoteTest {
      */
     @Test
     void invokeDateComputeChain() {
-        LocalDate date = ChronoHelper.dateComputeChain()
+        LocalDate date = UranusUtilityEngine.chrono().dateComputeChain()
                 .fixYears(1)
                 .fixMonths(2)
                 .fixDays(10)
@@ -51,7 +59,7 @@ class ExamNoteTest {
      */
     @Test
     void invokeDateTImeComputeChainWithRegion() {
-        LocalDateTime localDateTime = ChronoHelper.dateTimeComputeChain(Region.REPUBLIC_OF_KOREA)
+        LocalDateTime localDateTime = UranusUtilityEngine.chrono().dateTimeComputeChain(Region.REPUBLIC_OF_KOREA)
                 .fixYears(-1)
                 .fixMonths(2)
                 .fixDays(10)
@@ -71,7 +79,7 @@ class ExamNoteTest {
      */
     @Test
     void invokeDateComputeChainWithRegion() {
-        LocalDate localDate = ChronoHelper.dateComputeChain(Region.REPUBLIC_OF_KOREA)
+        LocalDate localDate = UranusUtilityEngine.chrono().dateComputeChain(Region.REPUBLIC_OF_KOREA)
                 .fixYears(-1)
                 .fixMonths(2)
                 .fixDays(10)
@@ -87,9 +95,9 @@ class ExamNoteTest {
      */
     @Test
     void createNowWithDefaultRegion() {
-        LocalDateTime nowWithNoneParam = ChronoHelper.now();
+        LocalDateTime nowWithNoneParam = UranusUtilityEngine.chrono().now();
 
-        LocalDateTime nowWithNullParam = ChronoHelper.now(null);
+        LocalDateTime nowWithNullParam = UranusUtilityEngine.chrono().now(null);
 
         System.out.println("createNowWithDefaultRegion " + nowWithNoneParam);
         System.out.println("createNowWithDefaultRegion " + nowWithNullParam);
@@ -102,7 +110,7 @@ class ExamNoteTest {
      */
     @Test
     void createNowWithRegion() {
-        LocalDateTime now = ChronoHelper.now(Region.REPUBLIC_OF_KOREA);
+        LocalDateTime now = UranusUtilityEngine.chrono().now(Region.REPUBLIC_OF_KOREA);
 
         System.out.println("createNowWithRegion " + now);
     }
@@ -114,8 +122,8 @@ class ExamNoteTest {
      */
     @Test
     void createEpochWithDefaultRegion() {
-        Long epochWithNoneParam = ChronoHelper.epoch();
-        LocalDateTime epochWithNullParam = ChronoHelper.now(null);
+        Long epochWithNoneParam = UranusUtilityEngine.chrono().epoch();
+        LocalDateTime epochWithNullParam = UranusUtilityEngine.chrono().now(null);
 
         System.out.println("createEpochWithDefaultRegion " + epochWithNoneParam);
         System.out.println("createEpochWithDefaultRegion " + epochWithNullParam);
@@ -128,7 +136,7 @@ class ExamNoteTest {
      */
     @Test
     void createEpochWithRegion() {
-        Long epochWithRegion = ChronoHelper.epoch(Region.REPUBLIC_OF_KOREA);
+        Long epochWithRegion = UranusUtilityEngine.chrono().epoch(Region.REPUBLIC_OF_KOREA);
 
         System.out.println("createEpochWithDefaultRegion " + epochWithRegion);
     }
@@ -142,7 +150,7 @@ class ExamNoteTest {
      */
     @Test
     void transformEpochToString() {
-        String transform = ChronoHelper.formatTransform().epochToString()
+        String transform = UranusUtilityEngine.chrono().formatTransform().epochToString()
                 .epoch(1739696342L)
                 .format(ChronoFormat.DEFAULT_FORMAT)
                 .region(Region.REPUBLIC_OF_KOREA)
@@ -160,7 +168,7 @@ class ExamNoteTest {
      */
     @Test
     void transformStringToEpoch() {
-        Long transform = ChronoHelper.formatTransform().stringToEpoch()
+        Long transform = UranusUtilityEngine.chrono().formatTransform().stringToEpoch()
                 .target("2025-02-16 18:08:01")
                 .region(Region.REPUBLIC_OF_KOREA)
                 .transform();
@@ -177,12 +185,31 @@ class ExamNoteTest {
      */
     @Test
     void transformStringToString() {
-        String transform = ChronoHelper.formatTransform().stringToString()
+        String transform = UranusUtilityEngine.chrono().formatTransform().stringToString()
                 .target("2025-02-16 18:08:01")
                 .format(ChronoFormat.SIMPLIFY_FORMAT)
                 .region(Region.REPUBLIC_OF_KOREA)
                 .transform();
 
         System.out.println("transformStringToEpoch " + transform);
+    }
+
+    /**
+     * @see io.uranus.utility.bundle.core.utility.redis.converter.RedisHelper
+     * @see io.uranus.utility.bundle.core.utility.redis.generator.RedisKeyGenerator
+     *
+     * @implNote Dynamic Redis Key generate
+     */
+    @Test
+    void redisKeyGen() {
+        String key = UranusUtilityEngine.redis().keygen()
+                .defaultDelimiter()
+                .baseKey("mybasekey")
+                .add("this")
+                .add("and")
+                .add("that")
+                .build();
+
+        System.out.println(key);
     }
 }

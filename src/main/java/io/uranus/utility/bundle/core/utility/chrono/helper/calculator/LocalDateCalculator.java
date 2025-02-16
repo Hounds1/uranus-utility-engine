@@ -7,13 +7,13 @@ public class LocalDateCalculator {
 
     private ZonedDateTime zonedDateTime;
 
-    private LocalDateCalculator() {}
+    protected LocalDateCalculator() {}
 
     private LocalDateCalculator(ZonedDateTime zonedDateTime) {
         this.zonedDateTime = zonedDateTime;
     }
 
-    public static LocalDateCalculator createInstance(ZonedDateTime zonedDateTime) {
+    protected static LocalDateCalculator createInstance(ZonedDateTime zonedDateTime) {
         return new LocalDateCalculator(zonedDateTime);
     }
 

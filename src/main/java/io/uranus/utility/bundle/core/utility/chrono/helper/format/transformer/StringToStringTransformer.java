@@ -13,9 +13,9 @@ public class StringToStringTransformer extends ChronoTransformer<String> {
     private String target;
     private ChronoFormat format;
 
-    private StringToStringTransformer() {}
+    protected StringToStringTransformer() {}
 
-    public static StringToStringTransformer createInstance() {
+    protected static StringToStringTransformer createInstance() {
         return new StringToStringTransformer();
     }
 
