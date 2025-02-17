@@ -18,6 +18,10 @@ public class ChronoHelper {
 
     protected ChronoHelper() {}
 
+    /**
+     * @return ChronoHelper
+     * Create and return self
+     */
     protected static ChronoHelper createInstance() {
         return new ChronoHelper();
     }
@@ -126,6 +130,11 @@ public class ChronoHelper {
         return LocalDateCalculatorDelegate.getInstance(zonedDateTime);
     }
 
+    /**
+     * Delegate ChronoFormatTransformerSelector for support chaining computation.
+     * @see ChronoFormatTransformerSelector
+     * @return ChronoFormatTransformerSelector
+     */
     public ChronoFormatTransformerSelector formatTransform() {
         return ChronoFormatTransformerSelectorDelegate.getInstance();
     }

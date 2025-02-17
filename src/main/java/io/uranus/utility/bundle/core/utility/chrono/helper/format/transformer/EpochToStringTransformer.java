@@ -16,25 +16,46 @@ public class EpochToStringTransformer extends ChronoTransformer<String> {
 
     protected EpochToStringTransformer() {}
 
+    /**
+     * Epoch => String 변환 체인 인스턴스를 생성하고 반환합니다.
+     */
     protected static EpochToStringTransformer createInstance() {
         return new EpochToStringTransformer();
     }
 
+    /**
+     * @param epoch
+     * 변환 대상이 되는 [Epoch]를 설정합니다.
+     */
     public EpochToStringTransformer epoch(Long epoch) {
         this.target = epoch;
         return this;
     }
 
+    /**
+     * @param format
+     * [Epoch]를 변환 할 [Format]을 설정합니다.
+     */
     public EpochToStringTransformer format(ChronoFormat format) {
         this.format = format;
         return this;
     }
 
+    /**
+     * @param region
+     * 변환 시간대 보정을 위한 [Region]을 설정합니다.
+     */
     public EpochToStringTransformer region(Region region) {
         super.region = region;
         return this;
     }
 
+    /**
+     * @return String Formatted Datetime
+     * @throws IllegalArgumentException
+     * 형 변환을 시도하고 반환합니다.
+     * 필수적인 원소가 존재하지 않을 경우 예외를 발생시킵니다.
+     */
     public String transform() {
         if (target == null || format == null) {
             throw new IllegalStateException("Epoch and format are required");

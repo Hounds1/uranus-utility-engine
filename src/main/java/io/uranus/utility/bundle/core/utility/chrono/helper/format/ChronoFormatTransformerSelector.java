@@ -12,31 +12,46 @@ public class ChronoFormatTransformerSelector {
         return new ChronoFormatTransformerSelector();
     }
 
+    /**
+     * @return EpochToStringTransformer
+     * Long => String 변환 체인을 반환합니다.
+     */
     public EpochToStringTransformer epochToString() {
         return EpochToStringTransformerDelegate.getInstance();
     }
 
+    /**
+     * @return StringToEpochTransformer
+     * String => Long 변환 체인을 반환합니다.
+     */
     public StringToEpochTransformer stringToEpoch() {
         return StringToEpochTransformerDelegate.getInstance();
     }
 
+    /**
+     * @return StringToStringTransformer
+     * String => String 변환 체인을 반환합니다.
+     */
     public StringToStringTransformer stringToString() {
         return StringToStringTransformerDelegate.getInstance();
     }
 
-    static class EpochToStringTransformerDelegate extends EpochToStringTransformer {
+    /**
+     * Delegators
+     */
+    private static class EpochToStringTransformerDelegate extends EpochToStringTransformer {
         protected static EpochToStringTransformer getInstance() {
             return EpochToStringTransformer.createInstance();
         }
     }
 
-    static class StringToEpochTransformerDelegate extends StringToEpochTransformer {
+    private static class StringToEpochTransformerDelegate extends StringToEpochTransformer {
         protected static StringToEpochTransformer getInstance() {
             return StringToEpochTransformer.createInstance();
         }
     }
 
-    static class StringToStringTransformerDelegate extends StringToStringTransformer {
+    private static class StringToStringTransformerDelegate extends StringToStringTransformer {
         protected static StringToStringTransformer getInstance() {
             return StringToStringTransformer.createInstance();
         }
