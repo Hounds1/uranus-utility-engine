@@ -1,4 +1,4 @@
-package io.uranus.utility.bundle.core.utility.redis.converter;
+package io.uranus.utility.bundle.core.utility.redis.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.redis.generator.RedisKeyGenerator;
@@ -10,23 +10,31 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-@Component
-@RequiredArgsConstructor
 @Slf4j
 public class RedisHelper {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    protected RedisHelper() {
-        this.redisTemplate = new RedisTemplate<>();
-        this.objectMapper = new ObjectMapper();
+    protected RedisHelper(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
     }
 
-    protected static RedisHelper createInstance() {
-        return new RedisHelper();
+    /**
+     * @param redisTemplate
+     * @param objectMapper
+     * 상위 클래스에서 관리되는 [RedisTemplate], [ObjectMapper]를 주입받아 인스턴스를 생성합니다.
+     * 체이닝 지원을 위해 스스로 인스턴스를 생성하고 반환합니다.
+     */
+    protected static RedisHelper createInstance(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+        return new RedisHelper(redisTemplate, objectMapper);
     }
 
+    /**
+     * [RedisValueOperation]으로부터 값을 탐색해 [castType]으로 반환합니다.
+     * @return castType Object
+     */
     public <T> T castAndGetFromValue(String key, Class<T> castType) {
         rejectIfInvalid(key, castType);
 
@@ -44,6 +52,10 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * [RedisHashOperation]으로부터 값을 탐색해 [castType]으로 반환합니다.
+     * @return castType Object
+     */
     public <T> T castAndGetFromHash(String key, String hash, Class<T> castType) {
         rejectIfInvalid(key, hash, castType);
 
@@ -61,6 +73,10 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * [Redis Value]를 생성합니다.
+     * @return succeed or failed.
+     */
     public boolean setIntoValue(String key, Object val) {
         rejectIfInvalid(key, val);
 
@@ -73,6 +89,10 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * 유효 기간이 존재하는 [Redis Value]를 생성합니다.
+     * @return succeed or failed.
+     */
     public boolean setIntoValueWithExpiration(String key, Object val, Long expiration) {
         rejectIfInvalid(key, val, expiration);
 
@@ -85,6 +105,10 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * [Redis Hash]를 생성합니다.
+     * @return succeed or failed.
+     */
     public boolean setIntoHash(String key, String hash, Object val) {
         rejectIfInvalid(key, hash, val);
 
@@ -97,6 +121,10 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * @param expiration
+     * [Redis Value]의 유효 시간을 [expiration]만큼 연장합니다.
+     */
     public void extendsExpiration(String key, Long expiration) {
         rejectIfInvalid(key, expiration);
 
@@ -107,18 +135,31 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * @param expiration
+     * [Redis value]의 유효 시간을 [expiration]으로 초기화합니다.
+     */
     public void resetExpiration(String key, Long expiration) {
         rejectIfInvalid(key, expiration);
 
         redisTemplate.expire(key, expiration, TimeUnit.SECONDS);
     }
 
+    /**
+     * @param key
+     * [key]에 해당하는 [Redis value] 또는 [Redis hash]를 소멸시킵니다.
+     */
     public void invalidate(String key) {
         rejectIfInvalid(key);
 
         redisTemplate.delete(key);
     }
 
+    /**
+     * @param key
+     * @param arguments
+     * [key] 또는 [arguments]를 검사하고 예외를 발생시킵니다.
+     */
     private void rejectIfInvalid(String key, Object... arguments) {
         if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Key cannot be null or empty");
@@ -131,6 +172,12 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * @param key
+     * @param hash
+     * @param arguments
+     * [key] 또는 [hash] 또는 [arguments]를 검사하고 예외를 발생시킵니다.
+     */
     private void rejectIfInvalid(String key, String hash, Object... arguments) {
         if (key == null || key.isEmpty()) {
             throw new IllegalArgumentException("Key cannot be null or empty");
@@ -147,6 +194,9 @@ public class RedisHelper {
         }
     }
 
+    /**
+     * Exception Warnings
+     */
     private void printWarningWhileCasting(Exception e) {
         log.warn("Error parsing object from Redis. If needs more details then trace this [{}]", e.getMessage());
     }

@@ -15,20 +15,37 @@ public class StringToEpochTransformer extends ChronoTransformer<Long> {
 
     protected StringToEpochTransformer() {}
 
+    /**
+     * String => Epoch 포맷 변환 체인 인스턴스을 반환합니다.
+     */
     protected static StringToEpochTransformer createInstance() {
         return new StringToEpochTransformer();
     }
 
+    /**
+     * @param target
+     * 수정 대상이 되는 문자열 시간 [target]을 설정합니다.
+     */
     public StringToEpochTransformer target(String target) {
         this.target = target;
         return this;
     }
 
+    /**
+     * @param region
+     * 수정 시간 보정이 적용 될 [Region]을 설정합니다.
+     */
     public StringToEpochTransformer region(Region region) {
         super.region = region;
         return this;
     }
 
+    /**
+     * @return Epoch
+     * @throws IllegalArgumentException
+     * 형 변환을 시도하고 반환합니다.
+     * 필수 원소가 존재하지 않을 시 예외를 발생시킵니다.
+     */
     public Long transform() {
         if (this.target == null) {
             throw new IllegalStateException("String datetime(target) is required.");

@@ -1,9 +1,14 @@
 package io.uranus.utility.bundle.core.utility;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
-import io.uranus.utility.bundle.core.utility.redis.converter.RedisHelper;
+import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
+import org.springframework.data.redis.core.RedisTemplate;
 
 public class UranusUtilityEngine {
+
+    private static final RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+    private static final ObjectMapper om = new ObjectMapper();
 
     /**
      * All units cannot be instantiated without the UranusUtilityEngine.
@@ -23,15 +28,19 @@ public class UranusUtilityEngine {
     /**
      * Delegators
      */
-    class ChronoUtilityDelegate extends ChronoHelper {
+    private static class ChronoUtilityDelegate extends ChronoHelper {
         protected static ChronoHelper getInstance() {
             return ChronoHelper.createInstance();
         }
     }
 
-    class RedisUtilityDelegate extends RedisHelper {
+    private static class RedisUtilityDelegate extends RedisHelper {
+        private RedisUtilityDelegate() {
+            super(redisTemplate, om);
+        }
+
         protected static RedisHelper getInstance() {
-            return RedisHelper.createInstance();
+            return new RedisUtilityDelegate();
         }
     }
 }
