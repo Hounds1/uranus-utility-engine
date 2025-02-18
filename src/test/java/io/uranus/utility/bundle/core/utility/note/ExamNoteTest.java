@@ -3,6 +3,7 @@ package io.uranus.utility.bundle.core.utility.note;
 import io.uranus.utility.bundle.core.utility.UranusUtilityEngine;
 import io.uranus.utility.bundle.core.utility.chrono.helper.element.ChronoFormat;
 import io.uranus.utility.bundle.core.utility.chrono.helper.element.Region;
+import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -209,6 +210,27 @@ class ExamNoteTest {
                 .add("that")
                 .build();
 
-        System.out.println(key);
+        String directKeygen = UranusUtilityEngine.generateRedisKey("mybasekey", "this", "and", "that");
+        String directDelimitedKeygen = UranusUtilityEngine.generateDelimitedRedisKey(":","mybasekey", "this", "and", "that");
+
+        String hash = UranusUtilityEngine.redis().hashGen()
+                .withDelimiter(":")
+                .baseKey("mybasekey")
+                .add("this")
+                .add("and")
+                .add("that")
+                .build();
+
+        String directHashGen = UranusUtilityEngine.generateRedisHash("mybasekey", "this", "and", "that");
+        String directDelimitedHashGen = UranusUtilityEngine.generateDelimitedRedisHash(":", "mybasekey", "this", "and", "that");
+    }
+
+    @Test
+    void json() {
+        String exam = "This String is example.";
+
+        UranusUtilityEngine parsed = UranusUtilityEngine.json().parserFor(UranusUtilityEngine.class)
+                .withJson(exam)
+                .parse();
     }
 }

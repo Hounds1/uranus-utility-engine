@@ -1,11 +1,7 @@
 package io.uranus.utility.bundle.core.utility.redis.generator;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 public class RedisKeyGenerator {
@@ -29,7 +25,7 @@ public class RedisKeyGenerator {
      * @param delimiter
      * 키를 분리할 구분자를 설정합니다.
      */
-    public RedisKeyGenerator delimiter(String delimiter) {
+    public RedisKeyGenerator withDelimiter(String delimiter) {
         this.delimiter = delimiter;
         return this;
     }

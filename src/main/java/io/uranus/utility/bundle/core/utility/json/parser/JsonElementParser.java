@@ -9,33 +9,30 @@ import java.util.Set;
 public class JsonElementParser<T> {
 
     private String json;
-    private Class<?> castType;
+    private final Class<T> castType;
 
     private final ObjectMapper om;
 
-    protected JsonElementParser(ObjectMapper om) {
+    protected JsonElementParser(ObjectMapper om, Class<T> castType) {
         this.om = om;
+
+        if (castType == null) {
+            throw new IllegalArgumentException("castType cannot be null");
+        }
+        this.castType = castType;
+    }
+
+    protected JsonElementParser<T> createInstance(ObjectMapper om, Class<T> castType) {
+        return new JsonElementParser<>(om, castType);
     }
 
     /**
      * @param json
      * 바인딩 대상이 될 [Json]을 지정합니다.
      */
-    public JsonElementParser<T> json(String json) {
+    public JsonElementParser<T> withJson(String json) {
         this.json = json;
         return this;
-    }
-
-    /**
-     * @param clazz
-     * @param <R>
-     * [return type]이 될 클래스를 지정합니다.
-     */
-    public <R> JsonElementParser<R> castType(Class<R> clazz) {
-        JsonElementParser<R> newParser = new JsonElementParser<>(this.om);
-        newParser.json = this.json;
-        newParser.castType = clazz;
-        return newParser;
     }
 
     /**
@@ -43,7 +40,6 @@ public class JsonElementParser<T> {
      * - T는 [castType]으로 호출 전 지정
      * ex) ScannerPresenceRedis presenceSet = parser.parse();
      */
-    @SuppressWarnings("unchecked")
     public T parse() {
         if (json == null) {
             throw new IllegalArgumentException("Json value cannot be null.");
@@ -61,7 +57,6 @@ public class JsonElementParser<T> {
      * - T는 [castType]으로 호출 전 지정
      * ex) List<ScannerPresenceRedis> presenceList = parser.parseToList();
      */
-    @SuppressWarnings("unchecked")
     public List<T> parseToList() {
         if (json == null) {
             throw new IllegalArgumentException("Json value cannot be null.");
@@ -85,7 +80,6 @@ public class JsonElementParser<T> {
      * - T는 [castType]으로 호출 전 지정
      * ex) Set<ScannerPresenceRedis> presenceSet = parser.parseToSet();
      */
-    @SuppressWarnings("unchecked")
     public Set<T> parseToSet() {
         if (json == null) {
             throw new IllegalArgumentException("Json value cannot be null.");
@@ -107,7 +101,6 @@ public class JsonElementParser<T> {
      * - T는 [castType]으로 호출 전 지정
      * ex) Map<String, ScannerPresenceRedis> map = parser.parseToMap();
      */
-    @SuppressWarnings("unchecked")
     public Map<String, T> parseToMap() {
         if (json == null) {
             throw new IllegalArgumentException("Json value cannot be null.");
