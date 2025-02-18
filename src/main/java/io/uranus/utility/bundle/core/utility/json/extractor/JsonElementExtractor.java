@@ -8,7 +8,7 @@ import java.util.List;
 
 public class JsonElementExtractor {
 
-    private String from;
+    private String json;
     private final List<String> targets = new LinkedList<>();
 
     private final ObjectMapper om;
@@ -17,12 +17,16 @@ public class JsonElementExtractor {
         this.om = om;
     }
 
+    protected static JsonElementExtractor createInstance(ObjectMapper om) {
+        return new JsonElementExtractor(om);
+    }
+
     /**
-     * @param from
+     * @param json
      * 탐색 대상이 되는 [Json]을 설정합니다.
      */
-    public JsonElementExtractor from(String from) {
-        this.from = from;
+    public JsonElementExtractor withJson(String json) {
+        this.json = json;
         return this;
     }
 
@@ -44,12 +48,12 @@ public class JsonElementExtractor {
      * 존재하지 않는 필드일 시 예외를 발생시킵니다.
      */
     public String extract() {
-        if (this.from == null || this.from.isEmpty() || this.targets.isEmpty()) {
+        if (this.json == null || this.json.isEmpty() || this.targets.isEmpty()) {
             throw new IllegalArgumentException("from and target cannot be empty or null.");
         }
 
         try {
-            JsonNode node = om.readTree(from);
+            JsonNode node = om.readTree(json);
 
             for (String target : targets) {
                 node = node.path(target);

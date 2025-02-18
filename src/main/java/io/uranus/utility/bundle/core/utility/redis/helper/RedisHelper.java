@@ -1,87 +1,169 @@
 package io.uranus.utility.bundle.core.utility.redis.helper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.redis.generator.RedisKeyGenerator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class RedisHelper {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper;
 
-    protected RedisHelper(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+    private RedisKeyGenerator keyGenerator;
+    private RedisKeyGenerator hashGenerator;
+
+    protected RedisHelper(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
     }
 
     /**
      * @param redisTemplate
-     * @param objectMapper
      * 상위 클래스에서 관리되는 [RedisTemplate], [ObjectMapper]를 주입받아 인스턴스를 생성합니다.
      * 체이닝 지원을 위해 스스로 인스턴스를 생성하고 반환합니다.
      */
-    protected static RedisHelper createInstance(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
-        return new RedisHelper(redisTemplate, objectMapper);
+    protected static RedisHelper createInstance(RedisTemplate<String, String> redisTemplate) {
+        return new RedisHelper(redisTemplate);
     }
 
     /**
-     * [RedisValueOperation]으로부터 값을 탐색해 [castType]으로 반환합니다.
-     * @return castType Object
+     * [key]를 만들 준비가 된 [RedisHelper]를 반환합니다.
+     * @param baseKey
+     * @param arguments
+     * @return
      */
-    public <T> T castAndGetFromValue(String key, Class<T> castType) {
-        rejectIfInvalid(key, castType);
+    public RedisHelper keygen(String baseKey, String... arguments) {
+        this.keyGenerator = this.keygen();
 
-        String val = redisTemplate.opsForValue().get(key);
+        this.keyGenerator.baseKey(baseKey);
 
-        if (val == null) {
-            return null;
+        for (String argument : arguments) {
+            this.keyGenerator.add(argument);
         }
 
-        try {
-            return objectMapper.readValue(val, castType);
-        } catch (Exception e) {
-            printWarningWhileCasting(e);
+        return this;
+    }
+
+    /**
+     * [delimiter]를 사용해 [key]를 만들 준비가 된 [RedisHelper]를 반환합니다.
+     * @param delimiter
+     * @param baseKey
+     * @param arguments
+     * @return
+     */
+    public RedisHelper keygenWithDelimiter(String delimiter, String baseKey, String... arguments) {
+        this.keyGenerator = this.keygen();
+
+        this.keyGenerator.withDelimiter(delimiter);
+
+        this.keyGenerator.baseKey(baseKey);
+        for (String argument : arguments) {
+            this.keyGenerator.add(argument);
+        }
+
+        return this;
+    }
+
+    /**
+     * [hashKey]를 만들 준비가 된 [RedisHelper]를 반환합니다.
+     * @param baseKey
+     * @param arguments
+     * @return
+     */
+    public RedisHelper hashGen(String baseKey, String... arguments) {
+        this.hashGenerator = this.keygen();
+
+        this.hashGenerator.baseKey(baseKey);
+
+        for (String argument : arguments) {
+            this.hashGenerator.add(argument);
+        }
+
+        return this;
+    }
+
+    /**
+     * [delimiter]를 사용해 [hashKey]를 만들 준비가 된 [RedisHelper]를 반환합니다.
+     * @param delimiter
+     * @param baseKey
+     * @param arguments
+     * @return
+     */
+    public RedisHelper hashGenWithDelimiter(String delimiter, String baseKey, String... arguments) {
+        this.hashGenerator = this.keygen();
+
+        this.hashGenerator.withDelimiter(delimiter);
+
+        this.hashGenerator.baseKey(baseKey);
+        for (String argument : arguments) {
+            this.hashGenerator.add(argument);
+        }
+
+        return this;
+    }
+
+    /**
+     * 현재 [keyGenerator]에 저장된 값으로 키를 반환합니다.
+     * @return Redis key
+     */
+    public String getKey() {
+        if (this.keyGenerator != null) {
+            return this.keyGenerator.build();
+        } else {
             return null;
         }
     }
 
     /**
-     * [RedisHashOperation]으로부터 값을 탐색해 [castType]으로 반환합니다.
+     * 현재 [hashGenerator]에 저장된 값으로 해쉬키를 반환합니다.
+     * @return Redis hash key
+     */
+    public String getHashKey() {
+        if (this.hashGenerator != null) {
+            return this.hashGenerator.build();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * [RedisValueOperation]으로부터 값을 탐색해 반환합니다.
+     * @return object
+     */
+    public Object getFromValue(String key) {
+        rejectIfInvalid(key);
+
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    public Object getFromValue() {
+        return redisTemplate.opsForValue().get(this.keyGenerator.build());
+    }
+
+    /**
+     * [RedisHashOperation]으로부터 값을 탐색해 반환합니다.
      * @return castType Object
      */
-    public <T> T castAndGetFromHash(String key, String hash, Class<T> castType) {
-        rejectIfInvalid(key, hash, castType);
+    public Object getFromHash(String key, String hash) {
+        rejectIfInvalid(key, hash);
 
-        Object val = redisTemplate.opsForHash().get(key, hash);
+        return redisTemplate.opsForHash().get(key, hash);
+    }
 
-        if (val == null) {
-            return null;
-        }
-
-        try {
-            return objectMapper.readValue(String.valueOf(val), castType);
-        } catch (Exception e) {
-            printWarningWhileCasting(e);
-            return null;
-        }
+    public Object getFromHash() {
+        return redisTemplate.opsForHash().get(this.keyGenerator.build(), this.hashGenerator.build());
     }
 
     /**
      * [Redis Value]를 생성합니다.
      * @return succeed or failed.
      */
-    public boolean setIntoValue(String key, Object val) {
+    public boolean setIntoValue(String key, String val) {
         rejectIfInvalid(key, val);
 
         try {
-            redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(val));
+            redisTemplate.opsForValue().set(key, val);
             return true;
         } catch (Exception e) {
             printWarningWhilePuttingValue(e);
@@ -93,11 +175,11 @@ public class RedisHelper {
      * 유효 기간이 존재하는 [Redis Value]를 생성합니다.
      * @return succeed or failed.
      */
-    public boolean setIntoValueWithExpiration(String key, Object val, Long expiration) {
+    public boolean setIntoValueWithExpiration(String key, String val, Long expiration) {
         rejectIfInvalid(key, val, expiration);
 
         try {
-            redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(val), Duration.ofSeconds(expiration));
+            redisTemplate.opsForValue().set(key, val, expiration);
             return true;
         } catch (Exception e) {
             printWarningWhilePuttingHash(e);
@@ -109,11 +191,11 @@ public class RedisHelper {
      * [Redis Hash]를 생성합니다.
      * @return succeed or failed.
      */
-    public boolean setIntoHash(String key, String hash, Object val) {
+    public boolean setIntoHash(String key, String hash, String val) {
         rejectIfInvalid(key, hash, val);
 
         try {
-            redisTemplate.opsForHash().put(key, hash, objectMapper.writeValueAsString(val));
+            redisTemplate.opsForHash().put(key, hash, val);
             return true;
         } catch (Exception e) {
             printWarningWhilePuttingHash(e);
@@ -216,10 +298,14 @@ public class RedisHelper {
         return RedisKeyGeneratorDelegate.getInstance();
     }
 
+    public RedisKeyGenerator hashGen() {
+        return RedisKeyGeneratorDelegate.getInstance();
+    }
+
     /**
      * Delegators
      */
-    static class RedisKeyGeneratorDelegate extends RedisKeyGenerator {
+    private static class RedisKeyGeneratorDelegate extends RedisKeyGenerator {
         protected static RedisKeyGenerator getInstance() {
             return RedisKeyGenerator.createInstance();
         }

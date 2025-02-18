@@ -1,16 +1,19 @@
 package io.uranus.utility.bundle.core.utility.json.helper;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.json.extractor.JsonElementExtractor;
 import io.uranus.utility.bundle.core.utility.json.parser.JsonElementParser;
 
-public class JsonHelper<T> {
+public class JsonHelper {
 
-    protected ObjectMapper objectMapper;
+    protected final ObjectMapper objectMapper;
 
     protected JsonHelper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    protected static JsonHelper getInstance(ObjectMapper objectMapper) {
+        return new JsonHelper(objectMapper);
     }
 
     /**
@@ -33,9 +36,10 @@ public class JsonHelper<T> {
         return JsonElementExtractorDelegate.getInstance(objectMapper);
     }
 
-    public JsonElementParser<T> elementParsing() {
-        return JsonElementParserDelegate.getInstance(objectMapper);
+    public <T> JsonElementParser<T> parserFor(Class<T> clazz) {
+        return JsonElementParserDelegate.getInstance(objectMapper, clazz);
     }
+
 
     /**
      * Delegators
@@ -51,13 +55,12 @@ public class JsonHelper<T> {
     }
 
     private static class JsonElementParserDelegate<T> extends JsonElementParser<T> {
-        @SuppressWarnings("unchecked")
-        private JsonElementParserDelegate(ObjectMapper objectMapper) {
-            super(objectMapper);
+        private JsonElementParserDelegate(ObjectMapper objectMapper, Class<T> clazz) {
+            super(objectMapper, clazz);
         }
 
-        protected static <T> JsonElementParser<T> getInstance(ObjectMapper objectMapper) {
-            return new JsonElementParserDelegate(objectMapper);
+        protected static <T> JsonElementParser<T> getInstance(ObjectMapper objectMapper, Class<T> clazz) {
+            return new JsonElementParserDelegate<>(objectMapper, clazz);
         }
     }
 }
