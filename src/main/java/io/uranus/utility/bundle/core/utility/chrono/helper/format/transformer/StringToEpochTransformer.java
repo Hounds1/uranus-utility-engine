@@ -26,7 +26,7 @@ public class StringToEpochTransformer extends ChronoTransformer<Long> {
      * @param target
      * 수정 대상이 되는 문자열 시간 [target]을 설정합니다.
      */
-    public StringToEpochTransformer target(String target) {
+    public StringToEpochTransformer withTarget(String target) {
         this.target = target;
         return this;
     }
@@ -35,8 +35,13 @@ public class StringToEpochTransformer extends ChronoTransformer<Long> {
      * @param region
      * 수정 시간 보정이 적용 될 [Region]을 설정합니다.
      */
-    public StringToEpochTransformer region(Region region) {
+    public StringToEpochTransformer withRegion(Region region) {
         super.region = region;
+        return this;
+    }
+
+    public StringToEpochTransformer withDefaultRegion(Region region) {
+        super.withDefaultRegion();
         return this;
     }
 

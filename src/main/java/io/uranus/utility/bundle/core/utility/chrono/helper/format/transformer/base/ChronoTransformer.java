@@ -10,8 +10,13 @@ public abstract class ChronoTransformer<T> {
      */
     protected Region region;
 
-    public ChronoTransformer<T> region(Region region) {
+    protected ChronoTransformer<T> withRegion(Region region) {
         this.region = region;
+        return this;
+    }
+
+    protected ChronoTransformer<T> withDefaultRegion() {
+        this.region = Region.REPUBLIC_OF_KOREA;
         return this;
     }
 

@@ -26,17 +26,8 @@ public class StringToStringTransformer extends ChronoTransformer<String> {
      * @param target
      * 수정 대상이 되는 문자열 시간 [target]을 설정합니다.
      */
-    public StringToStringTransformer target(String target) {
+    public StringToStringTransformer withTarget(String target) {
         this.target = target;
-        return this;
-    }
-
-    /**
-     * @param region
-     * 수정 시간 보정이 적용 될 [Region]을 설정합니다.
-     */
-    public StringToStringTransformer region(Region region) {
-        super.region = region;
         return this;
     }
 
@@ -44,8 +35,22 @@ public class StringToStringTransformer extends ChronoTransformer<String> {
      * @param format(ChronoFormat)
      * 변환 대상 포맷을 설정합니다.
      */
-    public StringToStringTransformer format(ChronoFormat format) {
+    public StringToStringTransformer withFormat(ChronoFormat format) {
         this.format = format;
+        return this;
+    }
+
+    /**
+     * @param region
+     * 수정 시간 보정이 적용 될 [Region]을 설정합니다.
+     */
+    public StringToStringTransformer withRegion(Region region) {
+        super.region = region;
+        return this;
+    }
+
+    public StringToStringTransformer withDefaultRegion() {
+        super.withDefaultRegion();
         return this;
     }
 

@@ -3,7 +3,6 @@ package io.uranus.utility.bundle.core.utility.note;
 import io.uranus.utility.bundle.core.utility.UranusUtilityEngine;
 import io.uranus.utility.bundle.core.utility.chrono.helper.element.ChronoFormat;
 import io.uranus.utility.bundle.core.utility.chrono.helper.element.Region;
-import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -151,9 +150,9 @@ class ExamNoteTest {
     @Test
     void transformEpochToString() {
         String transform = UranusUtilityEngine.chrono().formatTransform().epochToString()
-                .epoch(1739696342L)
-                .format(ChronoFormat.DEFAULT_FORMAT)
-                .region(Region.REPUBLIC_OF_KOREA)
+                .withEpoch(1739696342L)
+                .withFormat(ChronoFormat.DEFAULT_FORMAT)
+                .withRegion(Region.REPUBLIC_OF_KOREA)
                 .transform();
 
         System.out.println("transformEpochToString " + transform);
@@ -169,8 +168,8 @@ class ExamNoteTest {
     @Test
     void transformStringToEpoch() {
         Long transform = UranusUtilityEngine.chrono().formatTransform().stringToEpoch()
-                .target("2025-02-16 18:08:01")
-                .region(Region.REPUBLIC_OF_KOREA)
+                .withTarget("2025-02-16 18:08:01")
+                .withRegion(Region.REPUBLIC_OF_KOREA)
                 .transform();
 
         System.out.println("transformStringToEpoch " + transform);
@@ -186,9 +185,9 @@ class ExamNoteTest {
     @Test
     void transformStringToString() {
         String transform = UranusUtilityEngine.chrono().formatTransform().stringToString()
-                .target("2025-02-16 18:08:01")
-                .format(ChronoFormat.SIMPLIFY_FORMAT)
-                .region(Region.REPUBLIC_OF_KOREA)
+                .withTarget("2025-02-16 18:08:01")
+                .withFormat(ChronoFormat.SIMPLIFY_FORMAT)
+                .withRegion(Region.REPUBLIC_OF_KOREA)
                 .transform();
 
         System.out.println("transformStringToEpoch " + transform);
@@ -231,6 +230,23 @@ class ExamNoteTest {
 
         UranusUtilityEngine parsed = UranusUtilityEngine.json().parserFor(UranusUtilityEngine.class)
                 .withJson(exam)
+                .parse();
+
+        UranusUtilityEngine.json().elementExtraction()
+                .withJson(exam)
+                .navigate("field1")
+                .navigate("field2")
+                .extract();
+
+        String directGeneratedKey = UranusUtilityEngine.generateRedisKey("mybasekey", "this", "and", "that");
+        UranusUtilityEngine fromRedisAs = UranusUtilityEngine.getFromRedisAs(directGeneratedKey, UranusUtilityEngine.class);
+
+        String fromValue = (String) UranusUtilityEngine.redis()
+                .keygen("myubaseKey", "this", "and", "that")
+                .getFromValue();
+
+        UranusUtilityEngine parsedObject = UranusUtilityEngine.json().parserFor(UranusUtilityEngine.class)
+                .withJson(fromValue)
                 .parse();
     }
 }

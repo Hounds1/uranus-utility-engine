@@ -27,7 +27,7 @@ public class EpochToStringTransformer extends ChronoTransformer<String> {
      * @param epoch
      * 변환 대상이 되는 [Epoch]를 설정합니다.
      */
-    public EpochToStringTransformer epoch(Long epoch) {
+    public EpochToStringTransformer withEpoch(Long epoch) {
         this.target = epoch;
         return this;
     }
@@ -36,7 +36,7 @@ public class EpochToStringTransformer extends ChronoTransformer<String> {
      * @param format
      * [Epoch]를 변환 할 [Format]을 설정합니다.
      */
-    public EpochToStringTransformer format(ChronoFormat format) {
+    public EpochToStringTransformer withFormat(ChronoFormat format) {
         this.format = format;
         return this;
     }
@@ -45,8 +45,13 @@ public class EpochToStringTransformer extends ChronoTransformer<String> {
      * @param region
      * 변환 시간대 보정을 위한 [Region]을 설정합니다.
      */
-    public EpochToStringTransformer region(Region region) {
+    public EpochToStringTransformer withRegion(Region region) {
         super.region = region;
+        return this;
+    }
+
+    public EpochToStringTransformer withDefaultRegion(Region region) {
+        super.withDefaultRegion();
         return this;
     }
 
