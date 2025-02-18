@@ -23,7 +23,7 @@ public class UranusUtilityEngine {
     }
 
     /**
-     * All units cannot be instantiated without the SaturnUtilityEngine.
+     * All units cannot be instantiated without the UranusUtilityEngine.
      */
 
     /**
