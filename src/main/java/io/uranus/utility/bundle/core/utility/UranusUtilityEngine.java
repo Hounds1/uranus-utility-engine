@@ -4,22 +4,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
 import io.uranus.utility.bundle.core.utility.json.helper.JsonHelper;
 import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Component
 public class UranusUtilityEngine {
 
-    private static final RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-    private static final ObjectMapper om = new ObjectMapper();
+    private static RedisTemplate<String, String> REDIS_TEMPLATE_INSTANCE;
+    private static final ObjectMapper OBJECT_MAPPER_INSTANCE = new ObjectMapper();
     private static final JsonHelper JSON_HELPER_INSTANCE;
     private static final ChronoHelper CHRONO_HELPER_INSTANCE;
+    private static final RedisHelper REDIS_HELPER_INSTANCE;
+
+    @Autowired
+    private UranusUtilityEngine(RedisTemplate<String, String> redisTemplate) {
+        UranusUtilityEngine.REDIS_TEMPLATE_INSTANCE = redisTemplate;
+    }
 
     static {
         JSON_HELPER_INSTANCE = JsonUtilityDelegate.getInstance();
         CHRONO_HELPER_INSTANCE = ChronoUtilityDelegate.getInstance();
+        REDIS_HELPER_INSTANCE = RedisUtilityDelegate.getInstance();
     }
 
     /**
@@ -34,7 +45,7 @@ public class UranusUtilityEngine {
     }
 
     public static RedisHelper redis() {
-        return RedisUtilityDelegate.getInstance();
+        return REDIS_HELPER_INSTANCE;
     }
 
     public static JsonHelper json() {
@@ -48,7 +59,7 @@ public class UranusUtilityEngine {
      * @return Redis key
      */
     public static String generateRedisKey(String baseKey, String... arguments) {
-        return redis().keygen(baseKey, arguments).getKey();
+        return redis().keyManager().generateKey(baseKey, arguments);
     }
 
     /**
@@ -59,7 +70,7 @@ public class UranusUtilityEngine {
      * @return Redis key
      */
     public static String generateDelimitedRedisKey(String delimiter, String baseKey, String... arguments) {
-        return redis().keygenWithDelimiter(delimiter, baseKey, arguments).getKey();
+        return redis().keyManager().generateDelimitedKey(delimiter, baseKey, arguments);
     }
 
     /**
@@ -69,7 +80,7 @@ public class UranusUtilityEngine {
      * @return Redis hash
      */
     public static String generateRedisHash(String baseKey, String... arguments) {
-        return redis().hashGen(baseKey, arguments).getHashKey();
+        return redis().keyManager().generateKey(baseKey, arguments);
     }
 
     /**
@@ -80,7 +91,7 @@ public class UranusUtilityEngine {
      * @return Redis Hash
      */
     public static String generateDelimitedRedisHash(String delimiter, String baseKey, String... arguments) {
-        return redis().hashGenWithDelimiter(delimiter, baseKey, arguments).getHashKey();
+        return redis().keyManager().generateDelimitedKey(delimiter, baseKey, arguments);
     }
 
     /**
@@ -138,7 +149,9 @@ public class UranusUtilityEngine {
      * @param <T>
      */
     public static <T> T getFromRedisAs(String key, Class<T> castType) {
-        String val = (String) redis().getFromValue(key);
+        String val = (String) redis().valueExtraction()
+                .withKey(key)
+                .extract();
 
         try {
             return json().parserFor(castType)
@@ -157,7 +170,10 @@ public class UranusUtilityEngine {
      * @param <T>
      */
     public static <T> T getHashFromRedisAs(String key, String hash, Class<T> castType) {
-        String val = (String) redis().getFromHash(key, hash);
+        String val = (String) redis().hashExtraction()
+                .withKey(key)
+                .withHash(hash)
+                .extract();
 
         try {
             return json().parserFor(castType)
@@ -175,7 +191,9 @@ public class UranusUtilityEngine {
      * @return List<T>
      */
     public static <T> List<T> getListFromRedisAs(String key, Class<T> castType) {
-        String json = (String) redis().getFromValue(key);
+        String json = (String) redis().valueExtraction()
+                .withKey(key)
+                .extract();
 
         try {
             return json().parserFor(castType)
@@ -193,7 +211,9 @@ public class UranusUtilityEngine {
      * @return List<T>
      */
     public static <T> Set<T> getSetFromRedisAs(String key, Class<T> castType) {
-        String json = (String) redis().getFromValue(key);
+        String json = (String) redis().valueExtraction()
+                .withKey(key)
+                .extract();
 
         try {
             return json().parserFor(castType)
@@ -211,7 +231,9 @@ public class UranusUtilityEngine {
      * @return List<T>
      */
     public static <T> Map<String, T> getMapFromRedisAs(String key, Class<T> castType) {
-        String json = (String) redis().getFromValue(key);
+        String json = (String) redis().valueExtraction()
+                .withKey(key)
+                .extract();
 
         try {
             return json().parserFor(castType)
@@ -222,6 +244,77 @@ public class UranusUtilityEngine {
         }
     }
 
+    /**
+     * [prefix]를 기반으로 해당하는 모든 키의 값을 파싱 후 반환합니다.
+     * @param prefix
+     * @param castType
+     * @return castType List
+     * @param <T>
+     */
+    public static <T> List<T> getMultiValuesWithPrefixFromRedisAs(String prefix, Class<T> castType) {
+        Set<String> keys = redis().keyManager().getKeysWithPrefix(prefix);
+
+        List<Object> values = redis().multiValueExtraction()
+                .withKeys(keys)
+                .extract();
+
+        try {
+            return json().multiParserFor(castType)
+                    .withJsonList(values)
+                    .parse();
+        } catch (Exception e) {
+            throw new RuntimeException("An error has been occurred while parsing json to List.");
+        }
+    }
+
+    /**
+     * [key]를 기반으로 해당 [key]에 속하는 모든 [RedisHash]를 파싱 후 반환합니다.
+     * @param key
+     * @param castType
+     * @return castType List
+     * @param <T>
+     */
+    public static <T> List<T> getMultiHashWithKeyFromRedisAs(String key, Class<T> castType) {
+        List<Object> extracted = redis().multiHashExtraction()
+                .withKey(key)
+                .extract();
+
+        try {
+            return json().multiParserFor(castType)
+                    .withJsonList(extracted)
+                    .parse();
+        } catch (Exception e) {
+            throw new RuntimeException("An error has been occurred while parsing json to List.");
+        }
+    }
+
+    /**
+     * [prefix] 기반으로 모든 [key]를 조회하고 해당 [key]에 속하는 모든 [hash]를 파싱 후 반환합니다.
+     * @param prefix
+     * @param castType
+     * @return castType List
+     * @param <T>
+     */
+    public static <T> List<T> getMultiHashWithPrefixFromRedisAs(String prefix, Class<T> castType) {
+        List<Object> fromRedis = new ArrayList<>();
+
+        Set<String> keys = redis().keyManager().getKeysWithPrefix(prefix);
+        for (String key : keys) {
+            List<Object> extracted = redis().multiHashExtraction()
+                    .withKey(key)
+                    .extract();
+
+            fromRedis.addAll(extracted);
+        }
+
+        try {
+            return json().multiParserFor(castType)
+                    .withJsonList(fromRedis)
+                    .parse();
+        } catch (Exception e) {
+            throw new RuntimeException("An error has been occurred while parsing json to List.");
+        }
+    }
 
     /**
      * Delegators
@@ -234,21 +327,21 @@ public class UranusUtilityEngine {
 
     private static class RedisUtilityDelegate extends RedisHelper {
         private RedisUtilityDelegate() {
-            super(redisTemplate);
+            super(REDIS_TEMPLATE_INSTANCE);
         }
 
         protected static RedisHelper getInstance() {
-            return new RedisUtilityDelegate();
+            return RedisHelper.createInstance(REDIS_TEMPLATE_INSTANCE);
         }
     }
 
     private static class JsonUtilityDelegate extends JsonHelper {
         private JsonUtilityDelegate() {
-            super(om);
+            super(OBJECT_MAPPER_INSTANCE);
         }
 
         protected static JsonHelper getInstance() {
-            return JsonHelper.getInstance(om);
+            return JsonHelper.getInstance(OBJECT_MAPPER_INSTANCE);
         }
     }
 }

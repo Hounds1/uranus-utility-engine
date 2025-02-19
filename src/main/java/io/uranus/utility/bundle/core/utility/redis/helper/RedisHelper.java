@@ -1,6 +1,10 @@
 package io.uranus.utility.bundle.core.utility.redis.helper;
 
-import io.uranus.utility.bundle.core.utility.redis.generator.RedisKeyGenerator;
+import io.uranus.utility.bundle.core.utility.redis.extractor.RedisMultiHashExtractor;
+import io.uranus.utility.bundle.core.utility.redis.extractor.RedisMultiValueExtractor;
+import io.uranus.utility.bundle.core.utility.redis.extractor.RedisSingleHashExtractor;
+import io.uranus.utility.bundle.core.utility.redis.extractor.RedisSingleValueExtractor;
+import io.uranus.utility.bundle.core.utility.redis.key.RedisKeyManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -10,12 +14,11 @@ import java.util.concurrent.TimeUnit;
 public class RedisHelper {
 
     private final RedisTemplate<String, String> redisTemplate;
-
-    private RedisKeyGenerator keyGenerator;
-    private RedisKeyGenerator hashGenerator;
+    private static RedisKeyManager REDIS_KEY_MANAGER_INSTANCE;
 
     protected RedisHelper(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
+        REDIS_KEY_MANAGER_INSTANCE = RedisKeyManagerDelegate.getInstance(redisTemplate);
     }
 
     /**
@@ -28,131 +31,29 @@ public class RedisHelper {
     }
 
     /**
-     * [key]를 만들 준비가 된 [RedisHelper]를 반환합니다.
-     * @param baseKey
-     * @param arguments
-     * @return
+     * RedisKeyManager
      */
-    public RedisHelper keygen(String baseKey, String... arguments) {
-        this.keyGenerator = this.keygen();
-
-        this.keyGenerator.baseKey(baseKey);
-
-        for (String argument : arguments) {
-            this.keyGenerator.add(argument);
-        }
-
-        return this;
+    public RedisKeyManager keyManager() {
+        return REDIS_KEY_MANAGER_INSTANCE;
     }
 
     /**
-     * [delimiter]를 사용해 [key]를 만들 준비가 된 [RedisHelper]를 반환합니다.
-     * @param delimiter
-     * @param baseKey
-     * @param arguments
-     * @return
+     * Extractors
      */
-    public RedisHelper keygenWithDelimiter(String delimiter, String baseKey, String... arguments) {
-        this.keyGenerator = this.keygen();
-
-        this.keyGenerator.withDelimiter(delimiter);
-
-        this.keyGenerator.baseKey(baseKey);
-        for (String argument : arguments) {
-            this.keyGenerator.add(argument);
-        }
-
-        return this;
+    public RedisSingleValueExtractor valueExtraction() {
+        return RedisSingleValueExtractorDelegate.getInstance(redisTemplate);
     }
 
-    /**
-     * [hashKey]를 만들 준비가 된 [RedisHelper]를 반환합니다.
-     * @param baseKey
-     * @param arguments
-     * @return
-     */
-    public RedisHelper hashGen(String baseKey, String... arguments) {
-        this.hashGenerator = this.keygen();
-
-        this.hashGenerator.baseKey(baseKey);
-
-        for (String argument : arguments) {
-            this.hashGenerator.add(argument);
-        }
-
-        return this;
+    public RedisSingleHashExtractor hashExtraction() {
+        return RedisSingleHashExtractorDelegate.getInstance(redisTemplate);
     }
 
-    /**
-     * [delimiter]를 사용해 [hashKey]를 만들 준비가 된 [RedisHelper]를 반환합니다.
-     * @param delimiter
-     * @param baseKey
-     * @param arguments
-     * @return
-     */
-    public RedisHelper hashGenWithDelimiter(String delimiter, String baseKey, String... arguments) {
-        this.hashGenerator = this.keygen();
-
-        this.hashGenerator.withDelimiter(delimiter);
-
-        this.hashGenerator.baseKey(baseKey);
-        for (String argument : arguments) {
-            this.hashGenerator.add(argument);
-        }
-
-        return this;
+    public RedisMultiValueExtractor multiValueExtraction() {
+        return RedisMultiValueExtractorDelegate.getInstance(redisTemplate);
     }
 
-    /**
-     * 현재 [keyGenerator]에 저장된 값으로 키를 반환합니다.
-     * @return Redis key
-     */
-    public String getKey() {
-        if (this.keyGenerator != null) {
-            return this.keyGenerator.build();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 현재 [hashGenerator]에 저장된 값으로 해쉬키를 반환합니다.
-     * @return Redis hash key
-     */
-    public String getHashKey() {
-        if (this.hashGenerator != null) {
-            return this.hashGenerator.build();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * [RedisValueOperation]으로부터 값을 탐색해 반환합니다.
-     * @return object
-     */
-    public Object getFromValue(String key) {
-        rejectIfInvalid(key);
-
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    public Object getFromValue() {
-        return redisTemplate.opsForValue().get(this.keyGenerator.build());
-    }
-
-    /**
-     * [RedisHashOperation]으로부터 값을 탐색해 반환합니다.
-     * @return castType Object
-     */
-    public Object getFromHash(String key, String hash) {
-        rejectIfInvalid(key, hash);
-
-        return redisTemplate.opsForHash().get(key, hash);
-    }
-
-    public Object getFromHash() {
-        return redisTemplate.opsForHash().get(this.keyGenerator.build(), this.hashGenerator.build());
+    public RedisMultiHashExtractor multiHashExtraction() {
+        return RedisMultiHashExtractorDelegate.getInstance(redisTemplate);
     }
 
     /**
@@ -228,6 +129,16 @@ public class RedisHelper {
     }
 
     /**
+     * 특정 [key]에 해당하는 데이터를 영속화 시킵니다.
+     * @param key
+     */
+    public void persistValue(String key) {
+        rejectIfInvalid(key);
+
+        redisTemplate.persist(key);
+    }
+
+    /**
      * @param key
      * [key]에 해당하는 [Redis value] 또는 [Redis hash]를 소멸시킵니다.
      */
@@ -291,23 +202,58 @@ public class RedisHelper {
         log.warn("Error putting hash into Redis. If needs more details then trace this [{}]", e.getMessage());
     }
 
-    /**
-     * Instance Delegation
-     */
-    public RedisKeyGenerator keygen() {
-        return RedisKeyGeneratorDelegate.getInstance();
+    private static class RedisSingleValueExtractorDelegate extends RedisSingleValueExtractor {
+        private RedisSingleValueExtractorDelegate(RedisTemplate<String, String> redisTemplate) {
+            super(redisTemplate);
+        }
+
+        protected static RedisSingleValueExtractor getInstance(RedisTemplate<String, String> redisTemplate) {
+            return new RedisSingleValueExtractorDelegate(redisTemplate);
+        }
     }
 
-    public RedisKeyGenerator hashGen() {
-        return RedisKeyGeneratorDelegate.getInstance();
+    private static class RedisMultiValueExtractorDelegate extends RedisMultiValueExtractor {
+        private RedisMultiValueExtractorDelegate(RedisTemplate<String, String> redisTemplate) {
+            super(redisTemplate);
+        }
+
+        protected static RedisMultiValueExtractor getInstance(RedisTemplate<String, String> redisTemplate) {
+            return new RedisMultiValueExtractorDelegate(redisTemplate);
+        }
     }
 
-    /**
-     * Delegators
-     */
-    private static class RedisKeyGeneratorDelegate extends RedisKeyGenerator {
-        protected static RedisKeyGenerator getInstance() {
-            return RedisKeyGenerator.createInstance();
+    private static class RedisSingleHashExtractorDelegate extends RedisSingleHashExtractor {
+        private RedisSingleHashExtractorDelegate(RedisTemplate<String, String> redisTemplate) {
+            super(redisTemplate);
+        }
+
+        protected static RedisSingleHashExtractor getInstance(RedisTemplate<String, String> redisTemplate) {
+            return new RedisSingleHashExtractorDelegate(redisTemplate);
+        }
+    }
+
+    private static class RedisMultiHashExtractorDelegate extends RedisMultiHashExtractor {
+        private RedisMultiHashExtractorDelegate(RedisTemplate<String, String> redisTemplate) {
+            super(redisTemplate);
+        }
+
+        protected static RedisMultiHashExtractor getInstance(RedisTemplate<String, String> redisTemplate) {
+            return new RedisMultiHashExtractorDelegate(redisTemplate);
+        }
+    }
+
+    private static class RedisKeyManagerDelegate extends RedisKeyManager {
+        private static RedisKeyManagerDelegate instance;
+
+        private RedisKeyManagerDelegate(RedisTemplate<String, String> redisTemplate) {
+            super(redisTemplate);
+        }
+
+        protected static synchronized RedisKeyManagerDelegate getInstance(RedisTemplate<String, String> redisTemplate) {
+            if (instance == null) {
+                instance = new RedisKeyManagerDelegate(redisTemplate);
+            }
+            return instance;
         }
     }
 }

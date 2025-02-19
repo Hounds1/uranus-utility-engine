@@ -2,7 +2,8 @@ package io.uranus.utility.bundle.core.utility.json.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.json.extractor.JsonElementExtractor;
-import io.uranus.utility.bundle.core.utility.json.parser.JsonElementParser;
+import io.uranus.utility.bundle.core.utility.json.parser.JsonMultiElementParser;
+import io.uranus.utility.bundle.core.utility.json.parser.JsonSingleElementParser;
 
 public class JsonHelper {
 
@@ -36,10 +37,13 @@ public class JsonHelper {
         return JsonElementExtractorDelegate.getInstance(objectMapper);
     }
 
-    public <T> JsonElementParser<T> parserFor(Class<T> clazz) {
-        return JsonElementParserDelegate.getInstance(objectMapper, clazz);
+    public <T> JsonSingleElementParser<T> parserFor(Class<T> clazz) {
+        return JsonSingleElementParserDelegate.getInstance(objectMapper, clazz);
     }
 
+    public <T>JsonMultiElementParser<T> multiParserFor(Class<T> clazz) {
+        return JsonMultiElementParserDelegate.getInstance(objectMapper, clazz);
+    }
 
     /**
      * Delegators
@@ -54,13 +58,23 @@ public class JsonHelper {
         }
     }
 
-    private static class JsonElementParserDelegate<T> extends JsonElementParser<T> {
-        private JsonElementParserDelegate(ObjectMapper objectMapper, Class<T> clazz) {
+    private static class JsonSingleElementParserDelegate<T> extends JsonSingleElementParser<T> {
+        private JsonSingleElementParserDelegate(ObjectMapper objectMapper, Class<T> clazz) {
             super(objectMapper, clazz);
         }
 
-        protected static <T> JsonElementParser<T> getInstance(ObjectMapper objectMapper, Class<T> clazz) {
-            return new JsonElementParserDelegate<>(objectMapper, clazz);
+        protected static <T> JsonSingleElementParser<T> getInstance(ObjectMapper objectMapper, Class<T> clazz) {
+            return new JsonSingleElementParserDelegate<>(objectMapper, clazz);
+        }
+    }
+
+    private static class JsonMultiElementParserDelegate<T> extends JsonMultiElementParser<T> {
+        private JsonMultiElementParserDelegate(ObjectMapper objectMapper, Class<T> clazz) {
+            super(objectMapper, clazz);
+        }
+
+        protected static <T> JsonMultiElementParser<T> getInstance(ObjectMapper objectMapper, Class<T> clazz) {
+            return new JsonMultiElementParserDelegate<>(objectMapper, clazz);
         }
     }
 }

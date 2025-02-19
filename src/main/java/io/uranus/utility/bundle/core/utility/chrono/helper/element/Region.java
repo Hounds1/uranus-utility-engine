@@ -211,18 +211,13 @@ public enum Region {
     }
 
     public String zoneOffset() {
-        String offset = "";
-
-        if (this.utcOffsetHours > 0) {
-            offset += this.utcOffsetHours + ":";
-        } else {
-            offset += "-" + this.utcOffsetHours + ":";
-        }
-
-        offset += this.utcOffsetMinutes;
-
-        return offset;
+        return String.format("%s%02d:%02d",
+                (utcOffsetHours >= 0 ? "+" : ""),
+                utcOffsetHours,
+                utcOffsetMinutes
+        );
     }
+
 
     public Region selectRegion(String timeZone) {
         for (Region val : values()) {
