@@ -1,4 +1,4 @@
-package io.uranus.utility.bundle.core.utility.redis.key;
+package io.uranus.utility.bundle.core.utility.redis.helper.key;
 
 import org.springframework.data.redis.core.RedisTemplate;
 

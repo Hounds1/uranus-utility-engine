@@ -1,9 +1,9 @@
 package io.uranus.utility.bundle.core.utility.json.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.uranus.utility.bundle.core.utility.json.extractor.JsonElementExtractor;
-import io.uranus.utility.bundle.core.utility.json.parser.JsonMultiElementParser;
-import io.uranus.utility.bundle.core.utility.json.parser.JsonSingleElementParser;
+import io.uranus.utility.bundle.core.utility.json.helper.extractor.JsonElementExtractor;
+import io.uranus.utility.bundle.core.utility.json.helper.parser.JsonMultiElementParser;
+import io.uranus.utility.bundle.core.utility.json.helper.parser.JsonSingleElementParser;
 
 public class JsonHelper {
 

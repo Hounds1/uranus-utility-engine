@@ -1,4 +1,4 @@
-package io.uranus.utility.bundle.core.utility.redis.extractor;
+package io.uranus.utility.bundle.core.utility.redis.helper.extractor;
 
 import org.springframework.data.redis.core.RedisTemplate;
 

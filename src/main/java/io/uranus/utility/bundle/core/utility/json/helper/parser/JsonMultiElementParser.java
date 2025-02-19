@@ -1,4 +1,4 @@
-package io.uranus.utility.bundle.core.utility.json.parser;
+package io.uranus.utility.bundle.core.utility.json.helper.parser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
