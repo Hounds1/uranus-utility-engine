@@ -40,7 +40,7 @@ public class StringToEpochTransformer extends ChronoTransformer<Long> {
         return this;
     }
 
-    public StringToEpochTransformer withDefaultRegion(Region region) {
+    public StringToEpochTransformer withDefaultRegion() {
         super.withDefaultRegion();
         return this;
     }

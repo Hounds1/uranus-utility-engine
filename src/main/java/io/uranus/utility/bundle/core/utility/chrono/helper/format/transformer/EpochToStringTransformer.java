@@ -50,7 +50,7 @@ public class EpochToStringTransformer extends ChronoTransformer<String> {
         return this;
     }
 
-    public EpochToStringTransformer withDefaultRegion(Region region) {
+    public EpochToStringTransformer withDefaultRegion() {
         super.withDefaultRegion();
         return this;
     }

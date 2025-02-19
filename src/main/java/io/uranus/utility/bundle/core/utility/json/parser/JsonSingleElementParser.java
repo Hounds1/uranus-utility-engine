@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class JsonElementParser<T> {
+public class JsonSingleElementParser<T> {
 
     private String json;
     private final Class<T> castType;
 
     private final ObjectMapper om;
 
-    protected JsonElementParser(ObjectMapper om, Class<T> castType) {
+    protected JsonSingleElementParser(ObjectMapper om, Class<T> castType) {
         this.om = om;
 
         if (castType == null) {
@@ -22,15 +22,15 @@ public class JsonElementParser<T> {
         this.castType = castType;
     }
 
-    protected JsonElementParser<T> createInstance(ObjectMapper om, Class<T> castType) {
-        return new JsonElementParser<>(om, castType);
+    protected JsonSingleElementParser<T> createInstance(ObjectMapper om, Class<T> castType) {
+        return new JsonSingleElementParser<>(om, castType);
     }
 
     /**
      * @param json
      * 바인딩 대상이 될 [Json]을 지정합니다.
      */
-    public JsonElementParser<T> withJson(String json) {
+    public JsonSingleElementParser<T> withJson(String json) {
         this.json = json;
         return this;
     }
