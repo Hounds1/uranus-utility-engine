@@ -54,8 +54,8 @@ public class UranusUtilityEngine {
 
     /**
      * 인자에 따라 즉시 키를 생성하여 반환합니다.
-     * @param baseKey
-     * @param arguments
+     * @param baseKey 기본 키
+     * @param arguments 추가 인자
      * @return Redis key
      */
     public static String generateRedisKey(String baseKey, String... arguments) {
@@ -105,12 +105,8 @@ public class UranusUtilityEngine {
             throw new IllegalArgumentException("key or target cannot be null.");
         }
 
-        if (target instanceof String stringTarget) {
-
-            if ((stringTarget.startsWith("{") && stringTarget.endsWith("}"))
-                    || (stringTarget.startsWith("[") && stringTarget.endsWith("]"))) {
-                return redis().setIntoValue(key, stringTarget);
-            }
+        if (json().isJson(target)) {
+            return redis().setIntoValue(key, (String) target);
         }
 
         String json = json().writeToJson(target);
@@ -129,17 +125,34 @@ public class UranusUtilityEngine {
             throw new IllegalArgumentException("key or target or expiration cannot be null.");
         }
 
-        if (target instanceof String stringTarget) {
-
-            if ((stringTarget.startsWith("{") && stringTarget.endsWith("}"))
-                    || (stringTarget.startsWith("[") && stringTarget.endsWith("]"))) {
-                return redis().setIntoValueWithExpiration(key, stringTarget, expiration);
-            }
+        if (json().isJson(target)) {
+            return redis().setIntoValueWithExpiration(key, (String) target, expiration);
         }
 
         String json = json().writeToJson(target);
         return redis().setIntoValueWithExpiration(key, json, expiration);
     }
+
+    /**
+     * 대상 객체를 [Json]으로 변환하고 [Redis Hash]로 생성합니다.
+     * @param key
+     * @param hash
+     * @param target
+     * @return succeed or failed
+     */
+    public static boolean saveJsonToRedisHash(String key, String hash, Object target) {
+        if (key == null || hash == null || target == null) {
+            throw new IllegalArgumentException("key or hash or target cannot be null.");
+        }
+
+        if (json().isJson(target)) {
+            return redis().setIntoHash(key, hash, (String) target);
+        }
+
+        String json = json().writeToJson(target);
+        return redis().setIntoHash(key, hash, json);
+    }
+
 
     /**
      * [Redis Value]를 [castType] 클래스로 맵핑하여 반환합니다.
@@ -251,7 +264,7 @@ public class UranusUtilityEngine {
      * @return castType List
      * @param <T>
      */
-    public static <T> List<T> getMultiValuesWithPrefixFromRedisAs(String prefix, Class<T> castType) {
+    public static <T> List<T> getMultiValuesWithPrefixFromRedisAs(String prefix, Class<T> castType, boolean strictMode) {
         Set<String> keys = redis().keyManager().getKeysWithPrefix(prefix);
 
         List<Object> values = redis().multiValueExtraction()
@@ -259,9 +272,16 @@ public class UranusUtilityEngine {
                 .extract();
 
         try {
-            return json().multiParserFor(castType)
-                    .withJsonList(values)
-                    .parse();
+            if (strictMode) {
+                return json().multiParserFor(castType)
+                        .withJsonList(values)
+                        .withStrictMode()
+                        .parse();
+            } else {
+                return json().multiParserFor(castType)
+                        .withJsonList(values)
+                        .parse();
+            }
         } catch (Exception e) {
             throw new RuntimeException("An error has been occurred while parsing json to List.");
         }
@@ -274,15 +294,22 @@ public class UranusUtilityEngine {
      * @return castType List
      * @param <T>
      */
-    public static <T> List<T> getMultiHashWithKeyFromRedisAs(String key, Class<T> castType) {
+    public static <T> List<T> getMultiHashWithKeyFromRedisAs(String key, Class<T> castType, boolean strictMode) {
         List<Object> extracted = redis().multiHashExtraction()
                 .withKey(key)
                 .extract();
 
         try {
-            return json().multiParserFor(castType)
-                    .withJsonList(extracted)
-                    .parse();
+            if (strictMode) {
+                return json().multiParserFor(castType)
+                        .withJsonList(extracted)
+                        .withStrictMode()
+                        .parse();
+            } else {
+                return json().multiParserFor(castType)
+                        .withJsonList(extracted)
+                        .parse();
+            }
         } catch (Exception e) {
             throw new RuntimeException("An error has been occurred while parsing json to List.");
         }
@@ -295,7 +322,7 @@ public class UranusUtilityEngine {
      * @return castType List
      * @param <T>
      */
-    public static <T> List<T> getMultiHashWithPrefixFromRedisAs(String prefix, Class<T> castType) {
+    public static <T> List<T> getMultiHashWithPrefixFromRedisAs(String prefix, Class<T> castType, boolean strictMode) {
         List<Object> fromRedis = new ArrayList<>();
 
         Set<String> keys = redis().keyManager().getKeysWithPrefix(prefix);
@@ -308,9 +335,16 @@ public class UranusUtilityEngine {
         }
 
         try {
-            return json().multiParserFor(castType)
-                    .withJsonList(fromRedis)
-                    .parse();
+            if (strictMode) {
+                return json().multiParserFor(castType)
+                        .withJsonList(fromRedis)
+                        .withStrictMode()
+                        .parse();
+            } else {
+                return json().multiParserFor(castType)
+                        .withJsonList(fromRedis)
+                        .parse();
+            }
         } catch (Exception e) {
             throw new RuntimeException("An error has been occurred while parsing json to List.");
         }

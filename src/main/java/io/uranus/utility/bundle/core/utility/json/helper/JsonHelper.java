@@ -31,6 +31,20 @@ public class JsonHelper {
     }
 
     /**
+     * 검사 대상이 JSON 포맷이 맞는지 확인합니다.
+     * @param val
+     * @return boolean
+     */
+    public boolean isJson(Object val) {
+        if (val instanceof String stringTarget) {
+            return (stringTarget.startsWith("{") && stringTarget.endsWith("}"))
+                    || (stringTarget.startsWith("[") && stringTarget.endsWith("]"));
+        }
+
+        return false;
+    }
+
+    /**
      * Instance Delegation
      */
     public JsonElementExtractor elementExtraction() {
