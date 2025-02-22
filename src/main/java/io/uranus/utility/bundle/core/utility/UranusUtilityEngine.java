@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
 import io.uranus.utility.bundle.core.utility.json.helper.JsonHelper;
 import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,17 +19,18 @@ import java.util.Set;
 public class UranusUtilityEngine {
 
     private static RedisTemplate<String, String> REDIS_TEMPLATE_INSTANCE;
-    private static final ObjectMapper OBJECT_MAPPER_INSTANCE = new ObjectMapper();
-    private static final JsonHelper JSON_HELPER_INSTANCE;
-    private static final ChronoHelper CHRONO_HELPER_INSTANCE;
-    private static final RedisHelper REDIS_HELPER_INSTANCE;
+    private static ObjectMapper OBJECT_MAPPER_INSTANCE = new ObjectMapper();
+    private static JsonHelper JSON_HELPER_INSTANCE;
+    private static ChronoHelper CHRONO_HELPER_INSTANCE;
+    private static RedisHelper REDIS_HELPER_INSTANCE;
 
     @Autowired
-    private UranusUtilityEngine(RedisTemplate<String, String> redisTemplate) {
+    public UranusUtilityEngine(@Qualifier("stringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         UranusUtilityEngine.REDIS_TEMPLATE_INSTANCE = redisTemplate;
     }
 
-    static {
+    @PostConstruct
+    private void init() {
         JSON_HELPER_INSTANCE = JsonUtilityDelegate.getInstance();
         CHRONO_HELPER_INSTANCE = ChronoUtilityDelegate.getInstance();
         REDIS_HELPER_INSTANCE = RedisUtilityDelegate.getInstance();
