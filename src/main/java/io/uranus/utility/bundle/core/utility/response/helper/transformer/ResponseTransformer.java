@@ -1,5 +1,6 @@
 package io.uranus.utility.bundle.core.utility.response.helper.transformer;
 
+import io.uranus.utility.bundle.core.utility.response.helper.annotation.MappedField;
 import io.uranus.utility.bundle.core.utility.response.helper.storage.ResponseTransformCacheContainer;
 
 import java.lang.reflect.Constructor;
@@ -38,14 +39,32 @@ public class ResponseTransformer<T, R> {
 
             R returnClass = declaredConstructor.newInstance();
 
-            for (Map.Entry<String, Field> entry : originClassFields.entrySet()) {
-                String fieldName = entry.getKey();
-                Field originField = entry.getValue();
-                Field returnField = returnClassFields.get(fieldName);
+            for (Map.Entry<String, Field> entry : returnClassFields.entrySet()) {
+                String returnFieldName = entry.getKey();
+                Field returnField = entry.getValue();
 
-                if (returnField != null) {
-                    Object value = originField.get(originClass);
-                    returnField.set(returnClass, value);
+                if (returnField.isAnnotationPresent(MappedField.class)) {
+                    MappedField mappedField = returnField.getAnnotation(MappedField.class);
+
+                    Field originField = originClassFields.get(mappedField.origin());
+
+                    if (originField != null) {
+                        Object val = originField.get(this.originClass);
+
+                        if (val != null) {
+                            returnField.set(returnClass, val);
+                        }
+                    }
+                } else {
+                    Field originField = originClassFields.get(returnFieldName);
+
+                    if (originField != null) {
+                        Object val = originField.get(this.originClass);
+
+                        if (val != null) {
+                            returnField.set(returnClass, val);
+                        }
+                    }
                 }
             }
 

@@ -249,6 +249,7 @@ class UranusUtilityEngineTest {
         Assertions.assertNotNull(transformedResponse);
         Assertions.assertEquals(origin.getSomeValue(), transformedResponse.getSomeValue());
         Assertions.assertEquals(origin.getSomeValue2(), transformedResponse.getSomeValue2());
+        Assertions.assertEquals(origin.getSomeValue3(), transformedResponse.getOtherNameField());
 
         Assertions.assertEquals(2, ResponseTransformCacheContainer.containedSize());
     }
