@@ -25,5 +25,9 @@ public class ResponseTransformCacheContainer {
     public static boolean isContainedClass(Class<?> clazz) {
         return CLASS_FIELD_CACHE.containsKey(clazz);
     }
+
+    public static int containedSize() {
+        return CLASS_FIELD_CACHE.size();
+    }
 }
 

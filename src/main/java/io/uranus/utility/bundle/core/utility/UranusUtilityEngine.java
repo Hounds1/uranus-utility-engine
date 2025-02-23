@@ -360,6 +360,16 @@ public class UranusUtilityEngine {
         }
     }
 
+    public static <T, R> R responseTransform(T originClass, Class<R> returnClass) {
+        if (originClass == null || returnClass == null) {
+            throw new IllegalArgumentException("The originClass and returnClass must not be null.");
+        }
+
+        return response().transformerFor(returnClass)
+                .withOrigin(originClass)
+                .transform();
+    }
+
     /**
      * Delegators
      */

@@ -2,13 +2,14 @@ package io.uranus.utility.bundle.core.utility.response.helper.transformer;
 
 import io.uranus.utility.bundle.core.utility.response.helper.storage.ResponseTransformCacheContainer;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Map;
 
 public class ResponseTransformer<T, R> {
 
     private final Class<R> returnClass;
-    private Class<T> originClass;
+    private T originClass;
 
     protected ResponseTransformer(Class<R> returnClass) {
         this.returnClass = returnClass;
@@ -18,7 +19,7 @@ public class ResponseTransformer<T, R> {
         return new ResponseTransformer(returnClass);
     }
 
-    public ResponseTransformer<T, R> withOrigin(Class<T> origin) {
+    public ResponseTransformer<T, R> withOrigin(T origin) {
         this.originClass = origin;
         return this;
     }
@@ -29,18 +30,22 @@ public class ResponseTransformer<T, R> {
         }
 
         Map<String, Field> returnClassFields = ResponseTransformCacheContainer.getClassFields(returnClass);
-        Map<String, Field> originClassFields = ResponseTransformCacheContainer.getClassFields(originClass);
+        Map<String, Field> originClassFields = ResponseTransformCacheContainer.getClassFields(originClass.getClass());
 
         try {
-            R returnClass = this.returnClass.getDeclaredConstructor().newInstance();
+            Constructor<R> declaredConstructor = this.returnClass.getDeclaredConstructor();
+            declaredConstructor.setAccessible(true);
+
+            R returnClass = declaredConstructor.newInstance();
 
             for (Map.Entry<String, Field> entry : originClassFields.entrySet()) {
                 String fieldName = entry.getKey();
-                Field targetField = entry.getValue();
+                Field originField = entry.getValue();
                 Field returnField = returnClassFields.get(fieldName);
 
                 if (returnField != null) {
-                    returnField.set(returnField, targetField.get(originClass));
+                    Object value = originField.get(originClass);
+                    returnField.set(returnClass, value);
                 }
             }
 
