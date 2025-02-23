@@ -1,6 +1,6 @@
 package io.uranus.utility.bundle.core.utility;
 
-import io.uranus.utility.bundle.core.utility.dummy.DummyObject;
+import io.uranus.utility.bundle.core.global.support.test.dummy.DummyObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

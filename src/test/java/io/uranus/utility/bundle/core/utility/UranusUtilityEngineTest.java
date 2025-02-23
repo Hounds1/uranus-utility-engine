@@ -1,9 +1,11 @@
 package io.uranus.utility.bundle.core.utility;
 
+import io.uranus.utility.bundle.core.global.support.test.dummy.DummyObject;
+import io.uranus.utility.bundle.core.global.support.test.dummy.DummyObjectResponseCopied;
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
-import io.uranus.utility.bundle.core.utility.dummy.DummyObject;
 import io.uranus.utility.bundle.core.utility.json.helper.JsonHelper;
 import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
+import io.uranus.utility.bundle.core.utility.response.helper.storage.ResponseTransformCacheContainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -236,6 +238,19 @@ class UranusUtilityEngineTest {
 
         UranusUtilityEngine.redis().invalidate(firKey);
         UranusUtilityEngine.redis().invalidate(secKey);
+    }
+
+    @Test
+    void responseTransform() {
+        DummyObject origin = DummyObject.createObject();
+
+        DummyObjectResponseCopied transformedResponse = UranusUtilityEngine.responseTransform(origin, DummyObjectResponseCopied.class);
+
+        Assertions.assertNotNull(transformedResponse);
+        Assertions.assertEquals(origin.getSomeValue(), transformedResponse.getSomeValue());
+        Assertions.assertEquals(origin.getSomeValue2(), transformedResponse.getSomeValue2());
+
+        Assertions.assertEquals(2, ResponseTransformCacheContainer.containedSize());
     }
 
     private List<DummyObject> listDummyObject() {
