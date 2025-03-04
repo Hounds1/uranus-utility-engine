@@ -2,7 +2,7 @@
 
 ## Redis <br>
 ### RedisHelper <br>
-### RedisKeyGenerator <br>
+### RedisKeyManager <br>
 
 ## Chrono <br>
 ### ChronoHelper <br>
