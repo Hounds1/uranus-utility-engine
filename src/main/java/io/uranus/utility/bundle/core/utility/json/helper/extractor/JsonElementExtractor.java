@@ -17,10 +17,6 @@ public class JsonElementExtractor {
         this.om = om;
     }
 
-    protected static JsonElementExtractor createInstance(ObjectMapper om) {
-        return new JsonElementExtractor(om);
-    }
-
     /**
      * @param json
      * 탐색 대상이 되는 [Json]을 설정합니다.

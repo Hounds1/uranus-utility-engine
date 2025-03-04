@@ -14,7 +14,10 @@ public enum ChronoFormat {
     SIMPLIFY_WITH_DASH("yyyy-MM-dd"),
     EXCEL_FORMAT("yyyy-MM-dd (HH:mm:ss)"),
     TIME_ONLY_FORMAT("%02d:%02d:%02d"),
-    HOUR_ONLY_FORMAT("HH");
+    HOUR_ONLY_FORMAT("HH"),
+    JSON_EXPORT_FORMAT_WINDOWS("yyyy\\MM\\dd"),
+    JSON_EXPORT_FORMAT_LINUX("yyyy/MM/dd"),
+    ;
 
     private final String format;
 
