@@ -1,9 +1,13 @@
 package io.uranus.utility.bundle.core.utility.json.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.uranus.utility.bundle.core.utility.json.helper.export.JsonExportProcessor;
 import io.uranus.utility.bundle.core.utility.json.helper.extractor.JsonElementExtractor;
 import io.uranus.utility.bundle.core.utility.json.helper.parser.JsonMultiElementParser;
 import io.uranus.utility.bundle.core.utility.json.helper.parser.JsonSingleElementParser;
+import io.uranus.utility.bundle.core.utility.json.helper.recover.JsonRecoveryProcessor;
+
+import java.util.List;
 
 public class JsonHelper {
 
@@ -55,8 +59,16 @@ public class JsonHelper {
         return JsonSingleElementParserDelegate.getInstance(objectMapper, clazz);
     }
 
-    public <T>JsonMultiElementParser<T> multiParserFor(Class<T> clazz) {
+    public <T> JsonMultiElementParser<T> multiParserFor(Class<T> clazz) {
         return JsonMultiElementParserDelegate.getInstance(objectMapper, clazz);
+    }
+
+    public <T>JsonRecoveryProcessor<T> recoveryProcessorFor(Class<T> clazz) {
+        return JsonRecoveryProcessorDelegate.getInstance(objectMapper, clazz);
+    }
+
+    public JsonExportProcessor exportProcessorFor(List<?> objects) {
+        return JsonExportProcessorDelegate.getInstance(objects);
     }
 
     /**
@@ -89,6 +101,26 @@ public class JsonHelper {
 
         protected static <T> JsonMultiElementParser<T> getInstance(ObjectMapper objectMapper, Class<T> clazz) {
             return new JsonMultiElementParserDelegate<>(objectMapper, clazz);
+        }
+    }
+
+    private static class JsonRecoveryProcessorDelegate<T> extends JsonRecoveryProcessor<T> {
+        private JsonRecoveryProcessorDelegate(ObjectMapper om, Class<T> clazz) {
+            super(om, clazz);
+        }
+
+        protected static <T> JsonRecoveryProcessor<T> getInstance(ObjectMapper om, Class<T> clazz) {
+            return new JsonRecoveryProcessorDelegate<>(om, clazz);
+        }
+    }
+
+    private static class JsonExportProcessorDelegate extends JsonExportProcessor {
+        private JsonExportProcessorDelegate(List<?> objects) {
+            super(objects);
+        }
+
+        protected static JsonExportProcessor getInstance(List<?> objects) {
+            return new JsonExportProcessorDelegate(objects);
         }
     }
 }

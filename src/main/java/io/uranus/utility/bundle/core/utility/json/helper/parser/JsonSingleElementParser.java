@@ -22,10 +22,6 @@ public class JsonSingleElementParser<T> {
         this.castType = castType;
     }
 
-    protected JsonSingleElementParser<T> createInstance(ObjectMapper om, Class<T> castType) {
-        return new JsonSingleElementParser<>(om, castType);
-    }
-
     /**
      * @param json
      * 바인딩 대상이 될 [Json]을 지정합니다.

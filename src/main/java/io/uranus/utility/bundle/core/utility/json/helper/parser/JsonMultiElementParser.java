@@ -25,10 +25,6 @@ public class JsonMultiElementParser<T> {
         this.om = om;
     }
 
-    protected JsonMultiElementParser<T> createInstance(ObjectMapper om, Class<T> castType) {
-        return new JsonMultiElementParser<>(om, castType);
-    }
-
     public JsonMultiElementParser<T> withJsonList(List<Object> jsonList) {
         this.jsonList = jsonList;
         return this;

@@ -18,6 +18,8 @@ public class ResponseSubEngineTest {
                 .withOrigin(origin)
                 .transform();
 
+        DummyObjectResponseCopied transformedResponse2 = UranusUtilityEngine.responseTransform(origin, DummyObjectResponseCopied.class);
+
         Assertions.assertNotNull(transformedResponse);
         Assertions.assertEquals(origin.getSomeValue(), transformedResponse.getSomeValue());
         Assertions.assertEquals(origin.getSomeValue2(), transformedResponse.getSomeValue2());
