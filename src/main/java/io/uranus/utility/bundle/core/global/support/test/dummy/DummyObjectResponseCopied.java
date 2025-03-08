@@ -13,4 +13,6 @@ public class DummyObjectResponseCopied {
     private String someValue2;
     @MappedField(origin = "someValue3")
     private String otherNameField;
+    @MappedField(ignore = true)
+    private String ignoreField;
 }

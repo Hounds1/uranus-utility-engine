@@ -12,9 +12,10 @@ public class DummyObject {
     private String someValue;
     private String someValue2;
     private String someValue3;
+    private String ignoreField;
 
     public static DummyObject createObject() {
-        return new DummyObject("someValue", "someValue2", "someValue3");
+        return new DummyObject("someValue", "someValue2", "someValue3", "ignoreField");
     }
 
 }

@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface MappedField {
 
-    String origin();
+    String origin() default "";
+    boolean ignore() default false;
 }
