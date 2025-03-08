@@ -17,7 +17,7 @@ public class ResponseTransformer<T, R> {
     }
 
     protected ResponseTransformer<T, R> createInstance(Class<R> returnClass) {
-        return new ResponseTransformer(returnClass);
+        return new ResponseTransformer<T, R>(returnClass);
     }
 
     public ResponseTransformer<T, R> withOrigin(T origin) {
@@ -45,6 +45,10 @@ public class ResponseTransformer<T, R> {
 
                 if (returnField.isAnnotationPresent(MappedField.class)) {
                     MappedField mappedField = returnField.getAnnotation(MappedField.class);
+
+                    if (mappedField.ignore()) {
+                        continue;
+                    }
 
                     Field originField = originClassFields.get(mappedField.origin());
 

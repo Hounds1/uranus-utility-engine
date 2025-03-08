@@ -27,4 +27,16 @@ public class ResponseSubEngineTest {
 
         Assertions.assertEquals(2, ResponseTransformCacheContainer.containedSize());
     }
+
+    @Test
+    void responseTransformIgnore() {
+        DummyObject origin = DummyObject.createObject();
+
+        DummyObjectResponseCopied transformed = UranusUtilityEngine.response().transformerFor(DummyObjectResponseCopied.class)
+                .withOrigin(origin)
+                .transform();
+
+        Assertions.assertNotNull(transformed);
+        Assertions.assertNull(transformed.getIgnoreField());
+    }
 }
