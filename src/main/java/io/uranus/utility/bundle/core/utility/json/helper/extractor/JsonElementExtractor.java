@@ -1,10 +1,13 @@
 package io.uranus.utility.bundle.core.utility.json.helper.extractor;
 
+import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.uranus.utility.bundle.core.utility.support.cache.JsonPointerCacheContainer;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JsonElementExtractor {
 
@@ -48,20 +51,23 @@ public class JsonElementExtractor {
             throw new IllegalArgumentException("from and target cannot be empty or null.");
         }
 
+        String joinedPoint = String.join("/", targets);
+        String navigatePoint = "/" + joinedPoint;
+
+        JsonPointer jsonPointer = JsonPointerCacheContainer.computeJsonPointer(navigatePoint);
+
         try {
             JsonNode node = om.readTree(json);
 
-            for (String target : targets) {
-                node = node.path(target);
-                if (node.isMissingNode()) {
-                    throw new IllegalAccessException("Not exists field name" + target + " in json");
-                }
+            node = node.at(jsonPointer);
+
+            if (node.isMissingNode()) {
+                throw new IllegalAccessException("Not exists path [" + navigatePoint + "] in json");
             }
 
             return node.asText();
-        } catch (Exception suppressed) {
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        return null;
     }
 }
