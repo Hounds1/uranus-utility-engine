@@ -124,6 +124,18 @@ public class JsonSubEngineTest {
         Assertions.assertThat(recovery.size()).isEqualTo(1000000);
     }
 
+    @Test
+    void navigateJson() {
+        String json = convertedDummyObject();
+
+        String val = UranusUtilityEngine.json().elementExtraction()
+                .withJson(json)
+                .navigate("someValue")
+                .extract();
+
+        Assertions.assertThat(val).isEqualTo("someValue");
+    }
+
     private String convertedDummyObject() {
         return UranusUtilityEngine.json().writeToJson(DummyObject.createObject());
     }
