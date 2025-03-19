@@ -1,5 +1,6 @@
 package io.uranus.utility.bundle.core.utility;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
 import io.uranus.utility.bundle.core.utility.json.helper.JsonHelper;
@@ -20,7 +21,7 @@ import java.util.Set;
 public class UranusUtilityEngine {
 
     private static RedisTemplate<String, String> REDIS_TEMPLATE_INSTANCE;
-    private static ObjectMapper OBJECT_MAPPER_INSTANCE = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER_INSTANCE = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
     private static JsonHelper JSON_HELPER_INSTANCE;
     private static ChronoHelper CHRONO_HELPER_INSTANCE;
     private static RedisHelper REDIS_HELPER_INSTANCE;
