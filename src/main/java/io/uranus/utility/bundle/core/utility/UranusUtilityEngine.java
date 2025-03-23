@@ -3,6 +3,7 @@ package io.uranus.utility.bundle.core.utility;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
+import io.uranus.utility.bundle.core.utility.connection.helper.NetworkHelper;
 import io.uranus.utility.bundle.core.utility.json.helper.JsonHelper;
 import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
 import io.uranus.utility.bundle.core.utility.response.helper.ResponseHelper;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +24,12 @@ public class UranusUtilityEngine {
 
     private static RedisTemplate<String, String> REDIS_TEMPLATE_INSTANCE;
     private static final ObjectMapper OBJECT_MAPPER_INSTANCE = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+    private static final RestTemplate REST_TEMPLATE_INSTANCE = new RestTemplate();
     private static JsonHelper JSON_HELPER_INSTANCE;
     private static ChronoHelper CHRONO_HELPER_INSTANCE;
     private static RedisHelper REDIS_HELPER_INSTANCE;
     private static ResponseHelper RESPONSE_HELPER_INSTANCE;
+    private static NetworkHelper NETWORK_HELPER_INSTANCE;
 
     @Autowired
     public UranusUtilityEngine(@Qualifier("stringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
@@ -38,6 +42,7 @@ public class UranusUtilityEngine {
         CHRONO_HELPER_INSTANCE = ChronoUtilityDelegate.getInstance();
         REDIS_HELPER_INSTANCE = RedisUtilityDelegate.getInstance();
         RESPONSE_HELPER_INSTANCE = ResponseUtilityDelegate.getInstance();
+        NETWORK_HELPER_INSTANCE = NetworkUtilityDelegate.getInstance();
     }
 
     /**
@@ -61,6 +66,10 @@ public class UranusUtilityEngine {
 
     public static ResponseHelper response() {
         return RESPONSE_HELPER_INSTANCE;
+    }
+
+    public static NetworkHelper network() {
+        return NETWORK_HELPER_INSTANCE;
     }
 
     /**
@@ -406,6 +415,16 @@ public class UranusUtilityEngine {
 
         protected static ResponseHelper getInstance() {
             return ResponseHelper.createInstance();
+        }
+    }
+
+    private static class NetworkUtilityDelegate extends NetworkHelper {
+        private NetworkUtilityDelegate() {
+            super(REST_TEMPLATE_INSTANCE);
+        }
+
+        protected static NetworkHelper getInstance() {
+            return NetworkHelper.getInstance(REST_TEMPLATE_INSTANCE);
         }
     }
 }
