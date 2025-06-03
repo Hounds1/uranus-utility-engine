@@ -2,6 +2,7 @@ package io.uranus.utility.bundle.core.utility.connection.helper.connector;
 
 import io.uranus.utility.bundle.core.utility.connection.helper.connector.element.phase.*;
 import io.uranus.utility.bundle.core.utility.connection.helper.connector.element.result.ExternalNetworkResponse;
+import io.uranus.utility.bundle.core.utility.unify.pipeline.PipelineElement;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -246,10 +247,5 @@ public class NetworkConnector implements HttpMethodPhase,
                 item.apply(input);
             }
         }
-    }
-
-    @FunctionalInterface
-    protected interface PipelineElement<T> {
-        void apply(T element);
     }
 }

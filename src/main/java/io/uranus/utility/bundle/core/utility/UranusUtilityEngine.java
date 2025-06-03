@@ -6,6 +6,7 @@ import io.uranus.utility.bundle.core.utility.chrono.helper.ChronoHelper;
 import io.uranus.utility.bundle.core.utility.connection.helper.NetworkHelper;
 import io.uranus.utility.bundle.core.utility.json.helper.JsonHelper;
 import io.uranus.utility.bundle.core.utility.redis.helper.RedisHelper;
+import io.uranus.utility.bundle.core.utility.replace.helper.ReplaceHelper;
 import io.uranus.utility.bundle.core.utility.response.helper.ResponseHelper;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class UranusUtilityEngine {
     private static RedisHelper REDIS_HELPER_INSTANCE;
     private static ResponseHelper RESPONSE_HELPER_INSTANCE;
     private static NetworkHelper NETWORK_HELPER_INSTANCE;
+    private static ReplaceHelper REPLACE_HELPER_INSTANCE;
 
     @Autowired
     public UranusUtilityEngine(@Qualifier("stringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
@@ -43,6 +45,7 @@ public class UranusUtilityEngine {
         REDIS_HELPER_INSTANCE = RedisUtilityDelegate.getInstance();
         RESPONSE_HELPER_INSTANCE = ResponseUtilityDelegate.getInstance();
         NETWORK_HELPER_INSTANCE = NetworkUtilityDelegate.getInstance();
+        REPLACE_HELPER_INSTANCE = ReplaceUtilityDelegate.getInstance();
     }
 
     /**
@@ -70,6 +73,10 @@ public class UranusUtilityEngine {
 
     public static NetworkHelper network() {
         return NETWORK_HELPER_INSTANCE;
+    }
+
+    public static ReplaceHelper replace() {
+        return REPLACE_HELPER_INSTANCE;
     }
 
     /**
@@ -425,6 +432,16 @@ public class UranusUtilityEngine {
 
         protected static NetworkHelper getInstance() {
             return NetworkHelper.getInstance(REST_TEMPLATE_INSTANCE);
+        }
+    }
+
+    private static class ReplaceUtilityDelegate extends ReplaceHelper {
+        private ReplaceUtilityDelegate() {
+            super();
+        }
+
+        protected static ReplaceHelper getInstance() {
+            return ReplaceHelper.createInstance();
         }
     }
 }

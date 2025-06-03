@@ -1,4 +1,4 @@
-package io.uranus.utility.bundle.core.utility.support.cache;
+package io.uranus.utility.bundle.core.utility.json.helper.support.cache;
 
 import com.fasterxml.jackson.core.JsonPointer;
 
