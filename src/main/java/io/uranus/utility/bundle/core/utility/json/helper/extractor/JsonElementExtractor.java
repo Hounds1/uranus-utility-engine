@@ -3,11 +3,10 @@ package io.uranus.utility.bundle.core.utility.json.helper.extractor;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.uranus.utility.bundle.core.utility.support.cache.JsonPointerCacheContainer;
+import io.uranus.utility.bundle.core.utility.json.helper.support.cache.JsonPointerCacheContainer;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class JsonElementExtractor {
 
